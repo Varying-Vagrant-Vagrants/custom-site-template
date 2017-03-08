@@ -72,7 +72,7 @@ hosts:
     - baz.dev
 ```
 Defines the domains and hosts for VVV to listen on. 
-The first domain in this list is your sites promary domain.
+The first domain in this list is your sites primary domain.
 
 ```
 custom:
@@ -94,7 +94,7 @@ Older versions of WordPress will not run on PHP7, see this page on how to change
 
 ```
 custom:
-    wp_type: 4.6.4
+    wp_type: single
 ```
 Defines the type of install you are creating.
 Valid values are:
