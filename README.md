@@ -16,6 +16,8 @@ The supported environments are:
 ```
 my-site:
   repo: https://github.com/Varying-Vagrant-Vagrants/custom-site-template
+  hosts:
+    - my-site.dev
 ```
 | Setting    | Value       |
 |------------|-------------|
