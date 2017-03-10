@@ -1,16 +1,6 @@
 #!/usr/bin/env bash
 # Provision WordPress Stable
 
-get_hosts() {
-  local value=`cat ${VVV_CONFIG} | shyaml get-values sites.${SITE_ESCAPED}.hosts 2> /dev/null`
-  echo ${value:-$@}
-}
-
-get_primary_host() {
-  local value=`cat ${VVV_CONFIG} | shyaml get-value sites.${SITE_ESCAPED}.hosts.0 2> /dev/null`
-  echo ${value:-$1}
-}
-
 DOMAIN=`get_primary_host "${VVV_SITE_NAME}".dev`
 DOMAINS=`get_hosts "${DOMAIN}"`
 SITE_TITLE=`get_config_value 'site_title' "${DOMAIN}"`
