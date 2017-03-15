@@ -21,7 +21,7 @@ touch ${VVV_PATH_TO_SITE}/log/error.log
 touch ${VVV_PATH_TO_SITE}/log/access.log
 
 # Install and configure the latest stable version of WordPress
-if [[ ! -d "${VVV_PATH_TO_SITE}/public_html/wp-load.php" ]]; then
+if [[ ! -f "${VVV_PATH_TO_SITE}/public_html/wp-load.php" ]]; then
     echo "Downloading WordPress..."
 	noroot wp core download --version="${WP_VERSION}"
 fi
