@@ -92,7 +92,7 @@ Valid values are:
 - latest
 - a version number
 
-Older versions of WordPress will not run on PHP7, see this page on how to change PHP version per site. // TODO: Add link.
+Older versions of WordPress will not run on PHP7, see this page on [how to change PHP version per site](https://varyingvagrantvagrants.org/docs/en-US/adding-a-new-site/changing-php-version/).
 
 ```
 custom:
