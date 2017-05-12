@@ -103,6 +103,7 @@ Valid values are:
 - single
 - subdomain
 - subdirectory
+- skip
 
 ```
 custom:
