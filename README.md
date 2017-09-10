@@ -110,4 +110,8 @@ custom:
 ```
 Defines the DB name for the installation.
 
-
+```
+custom:
+    live_url: http://example.com
+```
+Defines the url of website from where images are proxied
