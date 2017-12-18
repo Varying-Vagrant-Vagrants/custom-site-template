@@ -20,7 +20,7 @@ mkdir -p ${VVV_PATH_TO_SITE}/log
 touch ${VVV_PATH_TO_SITE}/log/error.log
 touch ${VVV_PATH_TO_SITE}/log/access.log
 
-if [ "${WP_TYPE}" != "skip" ]; then
+if [ "${WP_TYPE}" != "none" ]; then
 
   # Install and configure the latest stable version of WordPress
   if [[ ! -f "${VVV_PATH_TO_SITE}/public_html/wp-load.php" ]]; then
@@ -46,11 +46,12 @@ PHP
       INSTALL_COMMAND="install"
     fi
 
-  noroot wp core ${INSTALL_COMMAND} --url="${DOMAIN}" --quiet --title="${SITE_TITLE}" --admin_name=admin --admin_email="admin@local.test" --admin_password="password"
-else
-  echo "Updating WordPress Stable..."
-  cd ${VVV_PATH_TO_SITE}/public_html
-  noroot wp core update --version="${WP_VERSION}"
+    noroot wp core ${INSTALL_COMMAND} --url="${DOMAIN}" --quiet --title="${SITE_TITLE}" --admin_name=admin --admin_email="admin@local.test" --admin_password="password"
+  else
+    echo "Updating WordPress Stable..."
+    cd ${VVV_PATH_TO_SITE}/public_html
+    noroot wp core update --version="${WP_VERSION}"
+  fi
 fi
 
 cp -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf.tmpl" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
