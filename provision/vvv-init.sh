@@ -23,13 +23,19 @@ touch ${VVV_PATH_TO_SITE}/log/access.log
 # Install and configure the latest stable version of WordPress
 if [[ ! -f "${VVV_PATH_TO_SITE}/public_html/wp-load.php" ]]; then
     echo "Downloading WordPress..."
-	noroot wp core download --version="${WP_VERSION}"
+	# noroot wp core download --version="${WP_VERSION}"
+	wp core download --version="${WP_VERSION}" --allow-root
 fi
 
 if [[ ! -f "${VVV_PATH_TO_SITE}/public_html/wp-config.php" ]]; then
   echo "Configuring WordPress Stable..."
-  noroot wp core config --dbname="${DB_NAME}" --dbuser=wp --dbpass=wp --quiet --extra-php <<PHP
+  # noroot wp core config --dbname="${DB_NAME}" --dbuser=wp --dbpass=wp --quiet --extra-php <<PHP
+  wp core config --dbname="${DB_NAME}" --dbuser=wp --dbpass=wp --quiet --extra-php --allow-root <<PHP
 define( 'WP_DEBUG', true );
+define( 'WP_DEBUG_DISPLAY', false );
+define( 'WP_DEBUG_LOG', true );
+define( 'SCRIPT_DEBUG', true );
+define( 'JETPACK_DEV_DEBUG', true );
 PHP
 fi
 
@@ -44,12 +50,20 @@ if ! $(noroot wp core is-installed); then
     INSTALL_COMMAND="install"
   fi
 
-  noroot wp core ${INSTALL_COMMAND} --url="${DOMAIN}" --quiet --title="${SITE_TITLE}" --admin_name=admin --admin_email="admin@local.test" --admin_password="password"
+  # noroot wp core ${INSTALL_COMMAND} --url="${DOMAIN}" --quiet --title="${SITE_TITLE}" --admin_name=admin --admin_email="admin@local.test" --admin_password="password"
+  wp core install --url=${DOMAIN} --quiet --title="${SITE_TITLE}" --admin_user=admin --admin_password=password --admin_email=admin@local.test --allow-root
 else
   echo "Updating WordPress Stable..."
   cd ${VVV_PATH_TO_SITE}/public_html
-  noroot wp core update --version="${WP_VERSION}"
+  # noroot wp core update --version="${WP_VERSION}"
+  wp core update --version="${WP_VERSION}" --allow-root
 fi
 
 cp -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf.tmpl" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
 sed -i "s#{{DOMAINS_HERE}}#${DOMAINS}#" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
+
+# user content
+# curl -s https://raw.githubusercontent.com/manovotny/wptest/master/wptest.xml > import.xml && wp plugin install wordpress-importer --allow-root  && wp plugin activate wordpress-importer --allow-root  && wp import import.xml --authors=skip --allow-root && rm import.xml
+
+# remove themes and plugins
+# wp theme delete twentythirteen --allow-root; wp theme delete twentyfourteen --allow-root; wp theme delete twentyfifteen --allow-root; wp theme delete twentysixteen --allow-root; wp plugin delete hello --allow-root; wp plugin delete akismet --allow-root; git checkout HEAD .
