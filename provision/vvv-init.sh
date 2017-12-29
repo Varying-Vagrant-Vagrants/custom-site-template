@@ -23,13 +23,19 @@ touch ${VVV_PATH_TO_SITE}/log/access.log
 # Install and configure the latest stable version of WordPress
 if [[ ! -f "${VVV_PATH_TO_SITE}/public_html/wp-load.php" ]]; then
     echo "Downloading WordPress..."
-	noroot wp core download --version="${WP_VERSION}"
+	# noroot wp core download --version="${WP_VERSION}"
+	wp core download --version="${WP_VERSION}" --allow-root
 fi
 
 if [[ ! -f "${VVV_PATH_TO_SITE}/public_html/wp-config.php" ]]; then
   echo "Configuring WordPress Stable..."
-  noroot wp core config --dbname="${DB_NAME}" --dbuser=wp --dbpass=wp --quiet --extra-php <<PHP
+  # noroot wp core config --dbname="${DB_NAME}" --dbuser=wp --dbpass=wp --quiet --extra-php <<PHP
+  wp core config --dbname="${DB_NAME}" --dbuser=wp --dbpass=wp --quiet --extra-php --allow-root <<PHP
 define( 'WP_DEBUG', true );
+define( 'WP_DEBUG_DISPLAY', false );
+define( 'WP_DEBUG_LOG', true );
+define( 'SCRIPT_DEBUG', true );
+define( 'JETPACK_DEV_DEBUG', true );
 PHP
 fi
 
@@ -48,7 +54,8 @@ if ! $(noroot wp core is-installed); then
 else
   echo "Updating WordPress Stable..."
   cd ${VVV_PATH_TO_SITE}/public_html
-  noroot wp core update --version="${WP_VERSION}"
+  # noroot wp core update --version="${WP_VERSION}"
+  wp core update --version="${WP_VERSION}" --allow-root
 fi
 
 cp -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf.tmpl" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
