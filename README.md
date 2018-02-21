@@ -63,7 +63,6 @@ my-site:
 | Site Title | multisite.test      |
 | DB Name    | my-site             |
 | Site Type  | Subdomain Multisite |
-| WP Version | Nightly             |
 
 ## Configuration Options
 
