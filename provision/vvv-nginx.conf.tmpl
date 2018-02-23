@@ -9,5 +9,8 @@ server {
 
     set          $upstream {upstream};
 
+    {{TLS_CERT}}
+    {{TLS_KEY}}
+
     include      /etc/nginx/nginx-wp-common.conf;
 }
