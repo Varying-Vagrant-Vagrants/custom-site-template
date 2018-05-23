@@ -64,6 +64,23 @@ my-site:
 | DB Name    | my-site             |
 | Site Type  | Subdomain Multisite |
 
+### WordPress Multisite with Subdirectory:
+
+```
+my-site:
+  repo: https://github.com/Varying-Vagrant-Vagrants/custom-site-template
+  hosts:
+    - multisite.test
+  custom:
+    wp_type: subdirectory
+```
+| Setting    | Value                  |
+|------------|------------------------|
+| Domain     | multisite.test         |
+| Site Title | multisite.test         |
+| DB Name    | my-site                |
+| Site Type  | Subdirectory Multisite |
+
 ## Configuration Options
 
 ```
