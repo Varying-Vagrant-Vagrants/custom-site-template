@@ -30,6 +30,7 @@ if [[ ! -f "${VVV_PATH_TO_SITE}/public_html/wp-config.php" ]]; then
   echo "Configuring WordPress Stable..."
   noroot wp core config --dbname="${DB_NAME}" --dbuser=wp --dbpass=wp --quiet --extra-php <<PHP
 define( 'WP_DEBUG', true );
+define( 'SCRIPT_DEBUG', true );
 PHP
 fi
 
