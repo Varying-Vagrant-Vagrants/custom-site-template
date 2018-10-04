@@ -60,8 +60,24 @@ sed -i "s#{{DOMAINS_HERE}}#${DOMAINS}#" "${VVV_PATH_TO_SITE}/provision/vvv-nginx
 if [[ "${LIVE_URL}" != http* ]]; then
 	LIVE_URL=''
 else
-	LIVE_URL="\n\n    # Directives to send expires headers and turn off 404 error logging.\n    location ~* .(js|css|png|jpg|jpeg|gif|ico)$ {\n         expires 24h;\n         log_not_found off;\n         try_files \$uri \$uri\/ @production;\n    }\n\n    location @production {\n        resolver 8.8.8.8;\n        proxy_pass $LIVE_URL\/\$uri;\n    }\n"
+	LIVE_URL=$(cat <<'END_HEREDOC'
+
+
+	# Directives to send expires headers and turn off 404 error logging.
+	location ~* .(js|css|png|jpg|jpeg|gif|ico)$ {
+		expires 24h;
+		log_not_found off;
+		try_files \$uri \$uri\/ @production;
+	}
+	
+	location @production {
+		resolver 8.8.8.8;
+		proxy_pass $LIVE_URL\/\$uri;
+	}
+END_HEREDOC
+)
 fi
+
 sed -i "s,nginx-wp-common.conf;,nginx-wp-common.conf;${LIVE_URL},g" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
 
 if [ -n "$(type -t is_utility_installed)" ] && [ "$(type -t is_utility_installed)" = function ] && `is_utility_installed core tls-ca`; then
