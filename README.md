@@ -17,12 +17,12 @@ The supported environments are:
 my-site:
   repo: https://github.com/Varying-Vagrant-Vagrants/custom-site-template
   hosts:
-    - my-site.dev
+    - my-site.test
 ```
 | Setting    | Value       |
 |------------|-------------|
-| Domain     | my-site.dev |
-| Site Title | my-site.dev |
+| Domain     | my-site.test |
+| Site Title | my-site.test |
 | DB Name    | my-site     |
 | Site Type  | Single      |
 | WP Version | Latest      |
@@ -33,14 +33,14 @@ my-site:
 my-site:
   repo: https://github.com/Varying-Vagrant-Vagrants/custom-site-template
   hosts:
-    - foo.dev
+    - foo.test
   custom:
     wp_version: nightly
 ```
 | Setting    | Value       |
 |------------|-------------|
-| Domain     | foo.dev     |
-| Site Title | foo.dev     |
+| Domain     | foo.test     |
+| Site Title | foo.test     |
 | DB Name    | my-site     |
 | Site Type  | Single      |
 | WP Version | Nightly     |
@@ -51,27 +51,43 @@ my-site:
 my-site:
   repo: https://github.com/Varying-Vagrant-Vagrants/custom-site-template
   hosts:
-    - multisite.dev
-    - site1.multisite.dev
-    - site2.multisite.dev
+    - multisite.test
+    - site1.multisite.test
+    - site2.multisite.test
   custom:
     wp_type: subdomain
 ```
 | Setting    | Value               |
 |------------|---------------------|
-| Domain     | multisite.dev       |
-| Site Title | multisite.dev       |
+| Domain     | multisite.test      |
+| Site Title | multisite.test      |
 | DB Name    | my-site             |
 | Site Type  | Subdomain Multisite |
-| WP Version | Nightly             |
+
+### WordPress Multisite with Subdirectory:
+
+```
+my-site:
+  repo: https://github.com/Varying-Vagrant-Vagrants/custom-site-template
+  hosts:
+    - multisite.test
+  custom:
+    wp_type: subdirectory
+```
+| Setting    | Value                  |
+|------------|------------------------|
+| Domain     | multisite.test         |
+| Site Title | multisite.test         |
+| DB Name    | my-site                |
+| Site Type  | Subdirectory Multisite |
 
 ## Configuration Options
 
 ```
 hosts:
-    - foo.dev
-    - bar.dev
-    - baz.dev
+    - foo.test
+    - bar.test
+    - baz.test
 ```
 Defines the domains and hosts for VVV to listen on. 
 The first domain in this list is your sites primary domain.
