@@ -1,16 +1,19 @@
 server {
     listen       80;
     listen       443 ssl;
-    server_name  {{DOMAINS_HERE}};
+    server_name  {vvv_hosts};
     root         {vvv_path_to_site}/public_html;
 
+    # Nginx logs
     error_log    {vvv_path_to_site}/log/error.log;
     access_log   {vvv_path_to_site}/log/access.log;
 
+    # This is needed to set the PHP being used
     set          $upstream {upstream};
 
     {{TLS_CERT}}
     {{TLS_KEY}}
 
+    # Nginx rules for WordPress, rewrite rules, permalinks, etc
     include      /etc/nginx/nginx-wp-common.conf;
 }
