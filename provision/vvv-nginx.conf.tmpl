@@ -5,8 +5,8 @@ server {
     root         {vvv_path_to_site}/public_html;
 
     # Nginx logs
-    error_log    {vvv_path_to_site}/log/error.log;
-    access_log   {vvv_path_to_site}/log/access.log;
+    error_log    {vvv_path_to_site}/log/nginx-error.log;
+    access_log   {vvv_path_to_site}/log/nginx-access.log;
 
     # This is needed to set the PHP being used
     set          $upstream {upstream};
