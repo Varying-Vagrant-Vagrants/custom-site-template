@@ -61,3 +61,22 @@ else
     sed -i "s#{{TLS_CERT}}##" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
     sed -i "s#{{TLS_KEY}}##" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
 fi
+
+WP_PLUGINS=`get_config_value 'plugins' ''`
+if [ -z ${WP_PLUGINS} ]; then
+    for WP_PLUGINS in plugin; do 
+        wp plugin install ${plugin} --activate
+    done
+fi
+
+WP_LOCALE=`get_config_value 'locale' ''`
+if [ -z ${WP_LOCALE} ]; then
+    wp language ${WP_LOCALE}
+fi
+
+WP_CONFIG=`get_config_value 'config' ''`
+if [ -z ${WP_CONFIG} ]; then
+    for WP_CONFIG in config; do 
+        wp config set ${config} true --raw
+    done
+fi
