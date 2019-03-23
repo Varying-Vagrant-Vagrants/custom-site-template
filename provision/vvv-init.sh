@@ -65,19 +65,20 @@ fi
 WP_PLUGINS=`get_config_value 'plugins' ''`
 if [ ! -z "${WP_PLUGINS}" ]; then
     echo ${WP_PLUGINS};
-    for plugin in ${WP_PLUGINS}; do 
+    for plugin in ${WP_PLUGINS//- /$'\n'}; do 
         noroot wp plugin install "${plugin}" --activate
     done
 fi
 
 WP_LOCALE=`get_config_value 'locale' ''`
 if [ ! -z "${WP_LOCALE}" ]; then
-    noroot wp language "${WP_LOCALE}"
+    noroot wp language core install "${WP_LOCALE}"
+    noroot wp language core activate "${WP_LOCALE}"
 fi
 
 WP_CONFIG=`get_config_value 'config' ''`
 if [ ! -z "${WP_CONFIG}" ]; then
-    for config in ${WP_CONFIG}; do 
+    for config in ${WP_CONFIG//- /$'\n'}; do 
         noroot wp config set "${config}" true --raw
     done
 fi
