@@ -64,6 +64,7 @@ fi
 
 WP_PLUGINS=`get_config_value 'plugins' ''`
 if [ ! -z "${WP_PLUGINS}" ]; then
+    echo ${WP_PLUGINS};
     for plugin in ${WP_PLUGINS}; do 
         noroot wp plugin install "${plugin}" --activate
     done
