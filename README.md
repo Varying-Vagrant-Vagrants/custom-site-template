@@ -126,6 +126,7 @@ custom:
 ```
 Defines the DB name for the installation.
 
+Other parameters available:
 
 ```
 custom:
