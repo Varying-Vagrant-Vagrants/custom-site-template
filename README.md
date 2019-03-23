@@ -127,3 +127,15 @@ custom:
 Defines the DB name for the installation.
 
 
+```
+custom:
+    delete_default_plugins: true
+    plugins: 
+         - query-monitor
+         - https://github.com/crstauf/query-monitor-extend/archive/version/1.0.zip
+         - https://github.com/norcross/airplane-mode/archive/master.zip
+    locale: it_IT
+	config:
+		- WP_DEBUG
+		- WP_DEBUG_LOG
+```
