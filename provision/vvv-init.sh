@@ -62,6 +62,12 @@ else
     sed -i "s#{{TLS_KEY}}##" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
 fi
 
+DELETE_DEFAULT_PLUGINS=`delete_default_plugins 'delete_default_plugins' ''`
+if [ ! -z "${DELETE_DEFAULT_PLUGINS}" ]; then
+    noroot wp plugin delete akismet
+    noroot wp plugin delete hello
+fi
+
 WP_PLUGINS=`get_config_value 'plugins' ''`
 if [ ! -z "${WP_PLUGINS}" ]; then
     for plugin in ${WP_PLUGINS//- /$'\n'}; do 
