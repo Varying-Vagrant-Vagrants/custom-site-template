@@ -10,6 +10,9 @@ server {
 
     # This is needed to set the PHP being used
     set          $upstream {upstream};
+    
+    # Enable server push if SSL/HTTP2 is being used for link preload headers
+    http2_push_preload on;
 
     {{TLS_CERT}}
     {{TLS_KEY}}
