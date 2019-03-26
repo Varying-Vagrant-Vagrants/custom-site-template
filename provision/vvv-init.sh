@@ -80,10 +80,3 @@ if [ ! -z "${WP_LOCALE}" ]; then
     noroot wp language core install "${WP_LOCALE}"
     noroot wp site switch-language "${WP_LOCALE}"
 fi
-
-WP_CONSTANTS=`get_config_value 'constants' ''`
-if [ ! -z "${WP_CONSTANTS}" ]; then
-    for constant in ${WP_CONSTANTS//- /$'\n'}; do 
-        noroot wp config set "${constant}" true --raw
-    done
-fi

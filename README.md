@@ -136,7 +136,4 @@ custom:
          - https://github.com/crstauf/query-monitor-extend/archive/version/1.0.zip
          - https://github.com/norcross/airplane-mode/archive/master.zip
     locale: it_IT
-    constants:
-        - WP_DEBUG
-        - WP_DEBUG_LOG
 ```
