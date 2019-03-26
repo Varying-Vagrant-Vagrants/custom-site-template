@@ -61,3 +61,9 @@ else
     sed -i "s#{{TLS_CERT}}##" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
     sed -i "s#{{TLS_KEY}}##" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
 fi
+
+cat test.yaml | shyaml get-values-0 sites.${SITE_ESCAPED}.custom.constants |
+  while IFS='' read -r -d '' key &&
+        IFS='' read -r -d '' value; do
+      noroot wp config set "${key}" "${value}" --raw
+  done
