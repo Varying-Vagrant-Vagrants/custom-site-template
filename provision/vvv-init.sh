@@ -77,6 +77,6 @@ fi
 
 WP_LOCALE=`get_config_value 'locale' ''`
 if [ ! -z "${WP_LOCALE}" ]; then
-    noroot wp language core install "${WP_LOCALE}"
-    noroot wp site switch-language "${WP_LOCALE}"
+    noroot wp language core install "${WP_LOCALE}" 2>/dev/null 
+    noroot wp site switch-language "${WP_LOCALE}" 2>/dev/null 
 fi
