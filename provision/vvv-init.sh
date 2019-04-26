@@ -46,6 +46,12 @@ if ! $(noroot wp core is-installed); then
   fi
 
   noroot wp core ${INSTALL_COMMAND} --url="${DOMAIN}" --quiet --title="${SITE_TITLE}" --admin_name=admin --admin_email="admin@local.test" --admin_password="password"
+
+  DELETE_DEFAULT_PLUGINS=`get_config_value 'delete_default_plugins' ''`
+  if [ ! -z "${DELETE_DEFAULT_PLUGINS}" ]; then
+      noroot wp plugin delete akismet
+      noroot wp plugin delete hello
+  fi
 else
   echo "Updating WordPress Stable..."
   cd ${VVV_PATH_TO_SITE}/public_html
@@ -60,12 +66,6 @@ if [ -n "$(type -t is_utility_installed)" ] && [ "$(type -t is_utility_installed
 else
     sed -i "s#{{TLS_CERT}}##" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
     sed -i "s#{{TLS_KEY}}##" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
-fi
-
-DELETE_DEFAULT_PLUGINS=`get_config_value 'delete_default_plugins' ''`
-if [ ! -z "${DELETE_DEFAULT_PLUGINS}" ]; then
-    noroot wp plugin delete akismet
-    noroot wp plugin delete hello
 fi
 
 WP_PLUGINS=`get_config_value 'plugins' ''`
