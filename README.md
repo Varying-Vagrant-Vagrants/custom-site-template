@@ -119,6 +119,7 @@ Valid values are:
 - single
 - subdomain
 - subdirectory
+- none
 
 ```yaml
 custom:
