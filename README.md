@@ -136,7 +136,7 @@ custom:
          - query-monitor
          - https://github.com/crstauf/query-monitor-extend/archive/version/1.0.zip
          - https://github.com/norcross/airplane-mode/archive/master.zip
-    constants:
+    wpconfig_constants:
          WP_DEBUG: true
          WP_DEBUG_LOG: true
          WP_DISABLE_FATAL_ERROR_HANDLER: true # To disable in WP 5.2 the FER mode
