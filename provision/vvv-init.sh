@@ -56,6 +56,12 @@ PHP
 
     noroot wp core ${INSTALL_COMMAND} --url="${DOMAIN}" --quiet --title="${SITE_TITLE}" --admin_name=admin --admin_email="admin@local.test" --admin_password="password"
     echo "WordPress was installed, with the username 'admin', and the password 'password' at admin@local.test"
+    
+    DELETE_DEFAULT_PLUGINS=`get_config_value 'delete_default_plugins' ''`
+    if [ ! -z "${DELETE_DEFAULT_PLUGINS}" ]; then
+        noroot wp plugin delete akismet
+        noroot wp plugin delete hello
+    fi
   else
     echo "Updating WordPress Stable..."
     cd ${VVV_PATH_TO_SITE}/public_html
@@ -81,6 +87,19 @@ if [ -n "$(type -t is_utility_installed)" ] && [ "$(type -t is_utility_installed
 else
     sed -i "s#{{TLS_CERT}}##" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
     sed -i "s#{{TLS_KEY}}##" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
+fi
+
+WP_PLUGINS=`get_config_value 'install_plugins' ''`
+if [ ! -z "${WP_PLUGINS}" ]; then
+    for plugin in ${WP_PLUGINS//- /$'\n'}; do 
+        noroot wp plugin install "${plugin}" --activate
+    done
+fi
+
+WP_LOCALE=`get_config_value 'locale' ''`
+if [ ! -z "${WP_LOCALE}" ]; then
+    noroot wp language core install "${WP_LOCALE}" 2>/dev/null 
+    noroot wp site switch-language "${WP_LOCALE}" 2>/dev/null 
 fi
 
 echo "Site Template provisioner script completed"
