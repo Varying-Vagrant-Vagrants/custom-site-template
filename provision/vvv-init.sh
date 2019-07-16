@@ -90,7 +90,7 @@ else
 fi
 
 
-cat test.yaml | shyaml get-values-0 sites.${SITE_ESCAPED}.custom.wpconfig_constants |
+get_config_value 'wpconfig_constants' |
   while IFS='' read -r -d '' key &&
         IFS='' read -r -d '' value; do
       noroot wp config set "${key}" "${value}" --raw
