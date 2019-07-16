@@ -89,7 +89,7 @@ else
     sed -i "s#{{TLS_KEY}}##" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
 fi
 
-WP_PLUGINS=`get_config_value 'plugins' ''`
+WP_PLUGINS=`get_config_value 'install_plugins' ''`
 if [ ! -z "${WP_PLUGINS}" ]; then
     for plugin in ${WP_PLUGINS//- /$'\n'}; do 
         noroot wp plugin install "${plugin}" --activate

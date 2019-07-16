@@ -132,7 +132,7 @@ Other parameters available:
 ```yaml
 custom:
     delete_default_plugins: true # Only on install of WordPress
-    plugins: # Various way to install a plugin
+    install_plugins: # Various way to install a plugin
          - query-monitor
          - https://github.com/crstauf/query-monitor-extend/archive/version/1.0.zip
          - https://github.com/norcross/airplane-mode/archive/master.zip
