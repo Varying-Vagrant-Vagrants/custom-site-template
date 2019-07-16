@@ -89,6 +89,13 @@ else
     sed -i "s#{{TLS_KEY}}##" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
 fi
 
+
+get_config_value 'wpconfig_constants' |
+  while IFS='' read -r -d '' key &&
+        IFS='' read -r -d '' value; do
+      noroot wp config set "${key}" "${value}" --raw
+  done
+  
 WP_PLUGINS=`get_config_value 'install_plugins' ''`
 if [ ! -z "${WP_PLUGINS}" ]; then
     for plugin in ${WP_PLUGINS//- /$'\n'}; do 
