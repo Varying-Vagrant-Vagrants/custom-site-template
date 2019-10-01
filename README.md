@@ -132,6 +132,7 @@ Other parameters available:
 ```yaml
 custom:
     delete_default_plugins: true # Only on install of WordPress
+    install_test_content: true # Install test content. Only on install of WordPress
     install_plugins: # Various way to install a plugin
          - query-monitor
          - https://github.com/crstauf/query-monitor-extend/archive/version/1.0.zip
