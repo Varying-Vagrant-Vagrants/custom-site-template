@@ -62,6 +62,17 @@ PHP
         noroot wp plugin delete akismet
         noroot wp plugin delete hello
     fi
+
+    INSTALL_TEST_CONTENT=`get_config_value 'install_test_content' ""`
+    if [ ! -z "${INSTALL_TEST_CONTENT}" ]; then
+      echo "Installing test content..."
+      curl -s https://raw.githubusercontent.com/poststatus/wptest/master/wptest.xml > import.xml 
+      noroot wp plugin install wordpress-importer
+      noroot wp plugin activate wordpress-importer
+      noroot wp import import.xml --authors=create
+      rm import.xml
+      echo "Test content installed"
+    fi
   else
     echo "Updating WordPress Stable..."
     cd ${VVV_PATH_TO_SITE}/public_html
