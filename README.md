@@ -145,4 +145,5 @@ custom:
     admin_user: admin # Only on install of WordPress
     admin_password: password # Only on install of WordPress
     admin_email: admin@local.test # Only on install of WordPress
+    live_url: http://example.com # Redirect any uploads not found locally to this domain
 ```
