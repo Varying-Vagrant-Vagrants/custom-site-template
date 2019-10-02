@@ -7,6 +7,7 @@ echo " * Custom site template provisioner - downloads and installs a copy of WP 
 DOMAIN=`get_primary_host "${VVV_SITE_NAME}".test`
 SITE_TITLE=`get_config_value 'site_title' "${DOMAIN}"`
 WP_VERSION=`get_config_value 'wp_version' 'latest'`
+WP_LOCALE=`get_config_value 'locale' 'en_US'`
 WP_TYPE=`get_config_value 'wp_type' "single"`
 DB_NAME=`get_config_value 'db_name' "${VVV_SITE_NAME}"`
 DB_NAME=${DB_NAME//[\\\/\.\<\>\:\"\'\|\?\!\*-]/}
@@ -29,7 +30,7 @@ if [ "${WP_TYPE}" != "none" ]; then
   # Install and configure the latest stable version of WordPress
   if [[ ! -f "${VVV_PATH_TO_SITE}/public_html/wp-load.php" ]]; then
     echo "Downloading WordPress..." 
-    noroot wp core download --version="${WP_VERSION}"
+    noroot wp core download --locale="${WP_LOCALE}" --version="${WP_VERSION}"
   fi
 
   if [[ ! -f "${VVV_PATH_TO_SITE}/public_html/wp-config.php" ]]; then
@@ -101,12 +102,6 @@ if [ ! -z "${WP_PLUGINS}" ]; then
     for plugin in ${WP_PLUGINS//- /$'\n'}; do 
         noroot wp plugin install "${plugin}" --activate
     done
-fi
-
-WP_LOCALE=`get_config_value 'locale' ''`
-if [ ! -z "${WP_LOCALE}" ]; then
-    noroot wp language core install "${WP_LOCALE}" 2>/dev/null 
-    noroot wp site switch-language "${WP_LOCALE}" 2>/dev/null 
 fi
 
 echo "Site Template provisioner script completed"
