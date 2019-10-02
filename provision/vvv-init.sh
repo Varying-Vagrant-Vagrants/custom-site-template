@@ -55,8 +55,11 @@ PHP
       INSTALL_COMMAND="install"
     fi
 
-    noroot wp core ${INSTALL_COMMAND} --url="${DOMAIN}" --quiet --title="${SITE_TITLE}" --admin_name=admin --admin_email="admin@local.test" --admin_password="password"
-    echo "WordPress was installed, with the username 'admin', and the password 'password' at admin@local.test"
+    ADMIN_USER=`get_config_value 'admin_user' "admin"`
+    ADMIN_PASSWORD=`get_config_value 'admin_password' "password"`
+    ADMIN_EMAIL=`get_config_value 'admin_email' "admin@local.test"`
+    noroot wp core ${INSTALL_COMMAND} --url="${DOMAIN}" --quiet --title="${SITE_TITLE}" --admin_name="${ADMIN_USER}" --admin_email="${ADMIN_EMAIL}" --admin_password="${ADMIN_PASSWORD}"
+    echo "WordPress was installed, with the username '${ADMIN_USER}', and the password '${ADMIN_PASSWORD}' at '${ADMIN_EMAIL}'"
     
     DELETE_DEFAULT_PLUGINS=`get_config_value 'delete_default_plugins' ''`
     if [ ! -z "${DELETE_DEFAULT_PLUGINS}" ]; then

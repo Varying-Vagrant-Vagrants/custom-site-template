@@ -141,4 +141,7 @@ custom:
          WP_DEBUG_LOG: true
          WP_DISABLE_FATAL_ERROR_HANDLER: true # To disable in WP 5.2 the FER mode
     locale: it_IT
+    admin_user: admin # Only on install of WordPress
+    admin_password: password # Only on install of WordPress
+    admin_email: admin@local.test # Only on install of WordPress
 ```
