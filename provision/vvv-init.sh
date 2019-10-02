@@ -41,46 +41,64 @@ define( 'SCRIPT_DEBUG', true );
 PHP
   fi
 
-  if ! $(noroot wp core is-installed); then
-    echo "Installing WordPress Stable..."
-
-    if [ "${WP_TYPE}" = "subdomain" ]; then
-      echo "Using multisite subdomain type install"
-      INSTALL_COMMAND="multisite-install --subdomains"
-    elif [ "${WP_TYPE}" = "subdirectory" ]; then
-      echo "Using a multisite install"
-      INSTALL_COMMAND="multisite-install"
-    else
-      echo "Using a single site install"
-      INSTALL_COMMAND="install"
-    fi
-
-    ADMIN_USER=`get_config_value 'admin_user' "admin"`
-    ADMIN_PASSWORD=`get_config_value 'admin_password' "password"`
-    ADMIN_EMAIL=`get_config_value 'admin_email' "admin@local.test"`
-    noroot wp core ${INSTALL_COMMAND} --url="${DOMAIN}" --quiet --title="${SITE_TITLE}" --admin_name="${ADMIN_USER}" --admin_email="${ADMIN_EMAIL}" --admin_password="${ADMIN_PASSWORD}"
-    echo "WordPress was installed, with the username '${ADMIN_USER}', and the password '${ADMIN_PASSWORD}' at '${ADMIN_EMAIL}'"
-    
-    DELETE_DEFAULT_PLUGINS=`get_config_value 'delete_default_plugins' ''`
-    if [ ! -z "${DELETE_DEFAULT_PLUGINS}" ]; then
-        noroot wp plugin delete akismet
-        noroot wp plugin delete hello
-    fi
-
-    INSTALL_TEST_CONTENT=`get_config_value 'install_test_content' ""`
-    if [ ! -z "${INSTALL_TEST_CONTENT}" ]; then
-      echo "Installing test content..."
-      curl -s https://raw.githubusercontent.com/poststatus/wptest/master/wptest.xml > import.xml 
-      noroot wp plugin install wordpress-importer
-      noroot wp plugin activate wordpress-importer
-      noroot wp import import.xml --authors=create
-      rm import.xml
-      echo "Test content installed"
-    fi
+  if [ -f "${VVV_PATH_TO_SITE}/public_html/wp-content/database.sql" ]; then
+    echo "Found database backup on site directory. Installing site from there..."
+    noroot wp config set DB_USER "wp"
+    noroot wp config set DB_PASSWORD "wp"
+    noroot wp config set DB_HOST "localhost"
+    noroot wp config set DB_NAME "${DB_NAME}"
+    noroot wp db import "${VVV_PATH_TO_SITE}/public_html/wp-content/database.sql"
+    echo "Installed database backup"
+  elif [ -f "/srv/database/backups/${VVV_SITE_NAME}.sql" ]; then
+    echo "Found database backup on the backups directory. Installing site from there..."
+    noroot wp config set DB_USER "wp"
+    noroot wp config set DB_PASSWORD "wp"
+    noroot wp config set DB_HOST "localhost"
+    noroot wp config set DB_NAME "${DB_NAME}"
+    noroot wp db import "/srv/database/backups/${VVV_SITE_NAME}.sql"
+    echo "Installed database backup"
   else
-    echo "Updating WordPress Stable..."
-    cd ${VVV_PATH_TO_SITE}/public_html
-    noroot wp core update --version="${WP_VERSION}"
+    if ! $(noroot wp core is-installed); then
+      echo "Installing WordPress Stable..."
+
+      if [ "${WP_TYPE}" = "subdomain" ]; then
+        echo "Using multisite subdomain type install"
+        INSTALL_COMMAND="multisite-install --subdomains"
+      elif [ "${WP_TYPE}" = "subdirectory" ]; then
+        echo "Using a multisite install"
+        INSTALL_COMMAND="multisite-install"
+      else
+        echo "Using a single site install"
+        INSTALL_COMMAND="install"
+      fi
+
+      ADMIN_USER=`get_config_value 'admin_user' "admin"`
+      ADMIN_PASSWORD=`get_config_value 'admin_password' "password"`
+      ADMIN_EMAIL=`get_config_value 'admin_email' "admin@local.test"`
+      noroot wp core ${INSTALL_COMMAND} --url="${DOMAIN}" --quiet --title="${SITE_TITLE}" --admin_name="${ADMIN_USER}" --admin_email="${ADMIN_EMAIL}" --admin_password="${ADMIN_PASSWORD}"
+      echo "WordPress was installed, with the username '${ADMIN_USER}', and the password '${ADMIN_PASSWORD}' at '${ADMIN_EMAIL}'"
+      
+      DELETE_DEFAULT_PLUGINS=`get_config_value 'delete_default_plugins' ''`
+      if [ ! -z "${DELETE_DEFAULT_PLUGINS}" ]; then
+          noroot wp plugin delete akismet
+          noroot wp plugin delete hello
+      fi
+
+      INSTALL_TEST_CONTENT=`get_config_value 'install_test_content' ""`
+      if [ ! -z "${INSTALL_TEST_CONTENT}" ]; then
+        echo "Installing test content..."
+        curl -s https://raw.githubusercontent.com/poststatus/wptest/master/wptest.xml > import.xml 
+        noroot wp plugin install wordpress-importer
+        noroot wp plugin activate wordpress-importer
+        noroot wp import import.xml --authors=create
+        rm import.xml
+        echo "Test content installed"
+      fi
+    else
+      echo "Updating WordPress Stable..."
+      cd ${VVV_PATH_TO_SITE}/public_html
+      noroot wp core update --version="${WP_VERSION}"
+    fi
   fi
 else
   echo "wp_type was set to none, provisioning WP was skipped, moving to Nginx configs"
