@@ -1,16 +1,22 @@
 server {
     listen       80;
-    listen       443 ssl;
-    server_name  {{DOMAINS_HERE}};
+    listen       443 ssl http2;
+    server_name  {vvv_hosts};
     root         {vvv_path_to_site}/public_html;
 
-    error_log    {vvv_path_to_site}/log/error.log;
-    access_log   {vvv_path_to_site}/log/access.log;
+    # Nginx logs
+    error_log    {vvv_path_to_site}/log/nginx-error.log;
+    access_log   {vvv_path_to_site}/log/nginx-access.log;
 
+    # This is needed to set the PHP being used
     set          $upstream {upstream};
+    
+    # Enable server push if SSL/HTTP2 is being used for link preload headers
+    http2_push_preload on;
 
     {{TLS_CERT}}
     {{TLS_KEY}}
 
+    # Nginx rules for WordPress, rewrite rules, permalinks, etc
     include      /etc/nginx/nginx-wp-common.conf;
 }
