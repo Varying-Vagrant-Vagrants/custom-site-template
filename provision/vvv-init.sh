@@ -77,7 +77,7 @@ PHP
       ADMIN_EMAIL=`get_config_value 'admin_email' "admin@local.test"`
       noroot wp core ${INSTALL_COMMAND} --url="${DOMAIN}" --quiet --title="${SITE_TITLE}" --admin_name="${ADMIN_USER}" --admin_email="${ADMIN_EMAIL}" --admin_password="${ADMIN_PASSWORD}"
       echo "WordPress was installed, with the username '${ADMIN_USER}', and the password '${ADMIN_PASSWORD}' at '${ADMIN_EMAIL}'"
-      
+
       DELETE_DEFAULT_PLUGINS=`get_config_value 'delete_default_plugins' ''`
       if [ ! -z "${DELETE_DEFAULT_PLUGINS}" ]; then
           noroot wp plugin delete akismet
@@ -105,26 +105,17 @@ else
 fi
 
 echo "Copying the sites Nginx config template ( fork this site template to customise the template )"
-cp -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf.tmpl" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
-
-if [ -n "$(type -t is_utility_installed)" ] && [ "$(type -t is_utility_installed)" = function ] && `is_utility_installed core tls-ca`; then
-  echo "Inserting the SSL key locations into the sites Nginx config"
-  VVV_CERT_DIR="/srv/certificates"
-  # On VVV 2.x we don't have a /srv/certificates mount, so switch to /vagrant/certificates
-  codename=$(lsb_release --codename | cut -f2)
-  if [[ $codename == "trusty" ]]; then # VVV 2 uses Ubuntu 14 LTS trusty
-    VVV_CERT_DIR="/vagrant/certificates"
-  fi
-  sed -i "s#{{TLS_CERT}}#ssl_certificate ${VVV_CERT_DIR}/${VVV_SITE_NAME}/dev.crt;#" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
-  sed -i "s#{{TLS_KEY}}#ssl_certificate_key ${VVV_CERT_DIR}/${VVV_SITE_NAME}/dev.key;#" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
+if [ -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx-custom.conf" ]; then
+  echo "A vvv-nginx-custom.conf file was found"
+  cp -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx-custom.conf" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
 else
-    sed -i "s#{{TLS_CERT}}##" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
-    sed -i "s#{{TLS_KEY}}##" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
+  echo "Using the default vvv-nginx-default.conf"
+  cp -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx-default.conf" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
 fi
 
 LIVE_URL=`get_config_value 'live_url' ''`
 if [ ! -z "$LIVE_URL" ]; then
-  # repalce potential protocols, and remove trailing slashes
+  # replace potential protocols, and remove trailing slashes
   LIVE_URL=$(echo ${LIVE_URL} | sed 's|https://||' | sed 's|http://||'  | sed 's:/*$::')
 
   redirect_config=$((cat <<END_HEREDOC
@@ -151,10 +142,10 @@ get_config_value 'wpconfig_constants' |
         IFS='' read -r -d '' value; do
       noroot wp config set "${key}" "${value}" --raw
   done
-  
+
 WP_PLUGINS=`get_config_value 'install_plugins' ''`
 if [ ! -z "${WP_PLUGINS}" ]; then
-    for plugin in ${WP_PLUGINS//- /$'\n'}; do 
+    for plugin in ${WP_PLUGINS//- /$'\n'}; do
         noroot wp plugin install "${plugin}" --activate
     done
 fi
