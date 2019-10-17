@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Provision WordPress Stable
 
+set -euo pipefail
+
 echo " * Custom site template provisioner - downloads and installs a copy of WP stable for testing, building client sites, etc"
 
 # fetch the first host as the primary domain. If none is available, generate a default using the site name
