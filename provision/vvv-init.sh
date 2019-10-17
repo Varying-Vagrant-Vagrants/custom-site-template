@@ -34,6 +34,9 @@ if [ "${WP_TYPE}" != "none" ]; then
   if [[ ! -f "${VVV_PATH_TO_SITE}/public_html/wp-load.php" ]]; then
     echo "Downloading WordPress..." 
     noroot wp core download --locale="${WP_LOCALE}" --version="${WP_VERSION}"
+  elif [ "${WP_VERSION}" != $( grep wp_version wp-includes/version.php ) ]; then
+    grep wp_version wp-includes/version.php
+    exit(1)
   fi
 
   if [[ ! -f "${VVV_PATH_TO_SITE}/public_html/wp-config.php" ]]; then
