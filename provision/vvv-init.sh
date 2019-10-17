@@ -32,7 +32,7 @@ if [ "${WP_TYPE}" != "none" ]; then
 
   # Install and configure the latest stable version of WordPress
   if [[ ! -f "${VVV_PATH_TO_SITE}/public_html/wp-load.php" ]]; then
-    echo "Downloading WordPress..." 
+    echo "Downloading WordPress..."
     noroot wp core download --locale="${WP_LOCALE}" --version="${WP_VERSION}"
   fi
 
@@ -90,7 +90,7 @@ PHP
       INSTALL_TEST_CONTENT=`get_config_value 'install_test_content' ""`
       if [ ! -z "${INSTALL_TEST_CONTENT}" ]; then
         echo "Installing test content..."
-        curl -s https://raw.githubusercontent.com/poststatus/wptest/master/wptest.xml > import.xml 
+        curl -s https://raw.githubusercontent.com/poststatus/wptest/master/wptest.xml > import.xml
         noroot wp plugin install wordpress-importer
         noroot wp plugin activate wordpress-importer
         noroot wp import import.xml --authors=create
@@ -154,12 +154,12 @@ if [ ! -z "${WP_PLUGINS}" ]; then
 fi
 
 if [[ -f "${VVV_PATH_TO_SITE}/public_html/wp-includes/version.php" ]]; then
-    CURRENT_VERSION=`grep wp_version "${VVV_PATH_TO_SITE}/public_html/wp-includes/version.php"`;
-    
-    if [[ "${CURRENT_VERSION}" != "${WP_VERSION}" ]]; then
-      echo "Istalling a new version of WordPress..." 
-      noroot wp core download --locale="${WP_LOCALE}" --version="${WP_VERSION}" --force
-    fi
+  CURRENT_VERSION=`grep wp_version "${VVV_PATH_TO_SITE}/public_html/wp-includes/version.php"`;
+
+  if [[ "${CURRENT_VERSION}" != "${WP_VERSION}" ]]; then
+    echo "Istalling a new version of WordPress..."
+    noroot wp core download --locale="${WP_LOCALE}" --version="${WP_VERSION}" --force
   fi
+fi
 
 echo "Site Template provisioner script completed"
