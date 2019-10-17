@@ -25,6 +25,9 @@ noroot mkdir -p ${VVV_PATH_TO_SITE}/log
 noroot touch ${VVV_PATH_TO_SITE}/log/nginx-error.log
 noroot touch ${VVV_PATH_TO_SITE}/log/nginx-access.log
 
+echo "Creating public_html folder if it doesn't exist already"
+noroot mkdir -p ${VVV_PATH_TO_SITE}/public_html
+
 if [ "${WP_TYPE}" != "none" ]; then
 
   # Install and configure the latest stable version of WordPress
