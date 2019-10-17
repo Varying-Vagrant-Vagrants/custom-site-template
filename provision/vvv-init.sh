@@ -107,12 +107,12 @@ else
   echo "wp_type was set to none, provisioning WP was skipped, moving to Nginx configs"
 fi
 
-echo "Copying the sites Nginx config template ( fork this site template to customise the template )"
+echo "Copying the sites Nginx config template"
 if [ -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx-custom.conf" ]; then
   echo "A vvv-nginx-custom.conf file was found"
   cp -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx-custom.conf" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
 else
-  echo "Using the default vvv-nginx-default.conf"
+  echo "Using the default vvv-nginx-default.conf, to customize, create a vvv-nginx-custom.conf"
   cp -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx-default.conf" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
 fi
 
