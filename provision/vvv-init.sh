@@ -34,9 +34,6 @@ if [ "${WP_TYPE}" != "none" ]; then
   if [[ ! -f "${VVV_PATH_TO_SITE}/public_html/wp-load.php" ]]; then
     echo "Downloading WordPress..." 
     noroot wp core download --locale="${WP_LOCALE}" --version="${WP_VERSION}"
-  elif [ "${WP_VERSION}" != $( grep wp_version wp-includes/version.php ) ]; then
-    grep wp_version wp-includes/version.php
-    exit(1)
   fi
 
   if [[ ! -f "${VVV_PATH_TO_SITE}/public_html/wp-config.php" ]]; then
@@ -155,5 +152,14 @@ if [ ! -z "${WP_PLUGINS}" ]; then
         noroot wp plugin install "${plugin}" --activate
     done
 fi
+
+if [[ "${VVV_PATH_TO_SITE}/public_html/wp-includes/version.php" ]]; then
+    CURRENT_VERSION=`grep wp_version "${VVV_PATH_TO_SITE}/public_html/wp-includes/version.php"`;
+    
+    if [[ "${CURRENT_VERSION}" != "${WP_VERSION}"]]; then
+      echo "Istalling a new version of WordPress..." 
+      noroot wp core download --locale="${WP_LOCALE}" --version="${WP_VERSION}" --force
+    fi
+  fi
 
 echo "Site Template provisioner script completed"
