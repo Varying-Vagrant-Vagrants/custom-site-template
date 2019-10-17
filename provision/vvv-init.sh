@@ -153,7 +153,7 @@ if [ ! -z "${WP_PLUGINS}" ]; then
     done
 fi
 
-if [[ "${VVV_PATH_TO_SITE}/public_html/wp-includes/version.php" ]]; then
+if [[ -f "${VVV_PATH_TO_SITE}/public_html/wp-includes/version.php" ]]; then
     CURRENT_VERSION=`grep wp_version "${VVV_PATH_TO_SITE}/public_html/wp-includes/version.php"`;
     
     if [[ "${CURRENT_VERSION}" != "${WP_VERSION}" ]]; then
