@@ -100,7 +100,7 @@ PHP
     else
       if [[ $(noroot wp core version) != "${WP_VERSION}" ]]; then
         echo "Installing a new version of WordPress..."
-        noroot wp core update --locale="${WP_LOCALE}" --version="${WP_VERSION}" --force
+        noroot wp core update --version="${WP_VERSION}" --force
       else
         echo "Updating WordPress Stable..."
         cd ${VVV_PATH_TO_SITE}/public_html
