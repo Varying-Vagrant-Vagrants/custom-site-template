@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Provision WordPress Stable
 
-set -euo pipefail
+set -eo pipefail
 
 echo " * Custom site template provisioner - downloads and installs a copy of WP stable for testing, building client sites, etc"
 
