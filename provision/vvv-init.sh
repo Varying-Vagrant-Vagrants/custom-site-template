@@ -160,7 +160,7 @@ if [[ ! -z "${FORCE_WP_VERSION}" ]]; then
 
     if [[ "${CURRENT_VERSION}" != "${WP_VERSION}" ]]; then
       echo "Installing a new version of WordPress..."
-      noroot wp core download --locale="${WP_LOCALE}" --version="${WP_VERSION}" --force
+      noroot wp core update --locale="${WP_LOCALE}" --version="${WP_VERSION}" --force
     fi
   fi
 fi
