@@ -7,7 +7,6 @@ echo " * Custom site template provisioner - downloads and installs a copy of WP 
 DOMAIN=`get_primary_host "${VVV_SITE_NAME}".test`
 SITE_TITLE=`get_config_value 'site_title' "${DOMAIN}"`
 WP_VERSION=`get_config_value 'wp_version' 'latest'`
-FORCE_CHANGE_WP_VERSION=`get_config_value 'force_change_wp_version' ''`
 WP_LOCALE=`get_config_value 'locale' 'en_US'`
 WP_TYPE=`get_config_value 'wp_type' "single"`
 DB_NAME=`get_config_value 'db_name' "${VVV_SITE_NAME}"`
@@ -99,9 +98,14 @@ PHP
         echo "Test content installed"
       fi
     else
-      echo "Updating WordPress Stable..."
-      cd ${VVV_PATH_TO_SITE}/public_html
-      noroot wp core update --version="${WP_VERSION}"
+      if [[ $(noroot wp core version) != "${WP_VERSION}" ]]; then
+        echo "Installing a new version of WordPress..."
+        noroot wp core update --locale="${WP_LOCALE}" --version="${WP_VERSION}" --force
+      else
+        echo "Updating WordPress Stable..."
+        cd ${VVV_PATH_TO_SITE}/public_html
+        noroot wp core update --version="${WP_VERSION}"
+      fi
     fi
   fi
 else
@@ -152,17 +156,6 @@ if [ ! -z "${WP_PLUGINS}" ]; then
     for plugin in ${WP_PLUGINS//- /$'\n'}; do
         noroot wp plugin install "${plugin}" --activate
     done
-fi
-
-if [[ ! -z "${FORCE_CHANGE_WP_VERSION}" ]]; then
-  if [[ -f "${VVV_PATH_TO_SITE}/public_html/wp-includes/version.php" ]]; then
-    CURRENT_VERSION=`grep wp_version "${VVV_PATH_TO_SITE}/public_html/wp-includes/version.php" | awk -F "'" '{print $2}' | awk "NF > 0"`
-
-    if [[ "${CURRENT_VERSION}" != "${WP_VERSION}" ]]; then
-      echo "Installing a new version of WordPress..."
-      noroot wp core update --locale="${WP_LOCALE}" --version="${WP_VERSION}" --force
-    fi
-  fi
 fi
 
 echo "Site Template provisioner script completed"

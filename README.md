@@ -112,12 +112,6 @@ Older versions of WordPress will not run on PHP7, see this page on [how to chang
 
 ```yaml
 custom:
-    force_change_wp_version: true
-```
-Forces the WP Version to be upgraded/downgraded during provisioning.
-
-```yaml
-custom:
     wp_type: single
 ```
 Defines the type of install you are creating.
