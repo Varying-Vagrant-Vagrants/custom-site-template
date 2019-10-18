@@ -99,7 +99,7 @@ PHP
       fi
     else
       if [[ $(noroot wp core version) -gt "${WP_VERSION}" ]]; then
-        echo "Installing a new version of WordPress..."
+        echo "Installing an older version of WordPress..."
         noroot wp core update --version="${WP_VERSION}" --force
       else
         echo "Updating WordPress Stable..."
