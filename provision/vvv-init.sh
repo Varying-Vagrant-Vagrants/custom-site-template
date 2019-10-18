@@ -98,7 +98,7 @@ PHP
         echo "Test content installed"
       fi
     else
-      if [[ $(noroot wp core version) != "${WP_VERSION}" ]]; then
+      if [[ $(noroot wp core version) -gt "${WP_VERSION}" ]]; then
         echo "Installing a new version of WordPress..."
         noroot wp core update --version="${WP_VERSION}" --force
       else
