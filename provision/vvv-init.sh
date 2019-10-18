@@ -156,9 +156,9 @@ fi
 
 if [[ ! -z "${FORCE_CHANGE_WP_VERSION}" ]]; then
   if [[ -f "${VVV_PATH_TO_SITE}/public_html/wp-includes/version.php" ]]; then
-    CURRENT_VERSION=`grep wp_version "${VVV_PATH_TO_SITE}/public_html/wp-includes/version.php"`
+    CURRENT_VERSION=`grep wp_version "${VVV_PATH_TO_SITE}/public_html/wp-includes/version.php" | awk -F "'" '{print $2}'`
 
-    if [[ "${CURRENT_VERSION}" -ne "${WP_VERSION}" ]]; then
+    if [[ "${CURRENT_VERSION}" != "${WP_VERSION}" ]]; then
       echo "Installing a new version of WordPress..."
       noroot wp core update --locale="${WP_LOCALE}" --version="${WP_VERSION}" --force
     fi
