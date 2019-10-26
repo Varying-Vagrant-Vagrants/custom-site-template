@@ -163,7 +163,7 @@ fi
 WP_THEMES=`get_config_value 'install_themes' ''`
 if [ ! -z "${WP_THEMES}" ]; then
     for theme in ${WP_THEMES//- /$'\n'}; do
-        noroot wp theme install "${theme}" --activate
+        noroot wp theme install "${theme}"
     done
 fi
 
