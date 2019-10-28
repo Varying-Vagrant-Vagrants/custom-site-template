@@ -100,15 +100,15 @@ PHP
         rm import.xml
         echo "Test content installed"
       fi
+    fi
+  else
+    if [[ $(noroot wp core version) > "${WP_VERSION}" ]]; then
+      echo "Installing an older version of WordPress..."
+      noroot wp core update --version="${WP_VERSION}" --force
     else
-      if [[ $(noroot wp core version) > "${WP_VERSION}" ]]; then
-        echo "Installing an older version of WordPress..."
-        noroot wp core update --version="${WP_VERSION}" --force
-      else
-        echo "Updating WordPress Stable..."
-        cd ${VVV_PATH_TO_SITE}/public_html
-        noroot wp core update --version="${WP_VERSION}"
-      fi
+      echo "Updating WordPress Stable..."
+      cd ${VVV_PATH_TO_SITE}/public_html
+      noroot wp core update --version="${WP_VERSION}"
     fi
   fi
 else
