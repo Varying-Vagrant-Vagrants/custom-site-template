@@ -46,24 +46,25 @@ define( 'SCRIPT_DEBUG', true );
 PHP
   fi
 
-  if [ -f "${VVV_PATH_TO_SITE}/public_html/wp-content/database.sql" ]; then
-    echo "Found database backup on site directory. Installing site from there..."
-    noroot wp config set DB_USER "wp"
-    noroot wp config set DB_PASSWORD "wp"
-    noroot wp config set DB_HOST "localhost"
-    noroot wp config set DB_NAME "${DB_NAME}"
-    noroot wp db import "${VVV_PATH_TO_SITE}/public_html/wp-content/database.sql"
-    echo "Installed database backup"
-  elif [ -f "/srv/database/backups/${VVV_SITE_NAME}.sql" ]; then
-    echo "Found database backup on the backups directory. Installing site from there..."
-    noroot wp config set DB_USER "wp"
-    noroot wp config set DB_PASSWORD "wp"
-    noroot wp config set DB_HOST "localhost"
-    noroot wp config set DB_NAME "${DB_NAME}"
-    noroot wp db import "/srv/database/backups/${VVV_SITE_NAME}.sql"
-    echo "Installed database backup"
-  else
-    if ! $(noroot wp core is-installed); then
+  if ! $(noroot wp core is-installed); then
+    echo "WordPress is present but isn't installed to the database, checking for SQL dumps in wp-content/database.sql or the main backup folder."
+    if [ -f "${VVV_PATH_TO_SITE}/public_html/wp-content/database.sql" ]; then
+      echo "Found database backup on site directory. Installing site from there..."
+      noroot wp config set DB_USER "wp"
+      noroot wp config set DB_PASSWORD "wp"
+      noroot wp config set DB_HOST "localhost"
+      noroot wp config set DB_NAME "${DB_NAME}"
+      noroot wp db import "${VVV_PATH_TO_SITE}/public_html/wp-content/database.sql"
+      echo "Installed database backup"
+    elif [ -f "/srv/database/backups/${VVV_SITE_NAME}.sql" ]; then
+      echo "Found database backup on the backups directory. Installing site from there..."
+      noroot wp config set DB_USER "wp"
+      noroot wp config set DB_PASSWORD "wp"
+      noroot wp config set DB_HOST "localhost"
+      noroot wp config set DB_NAME "${DB_NAME}"
+      noroot wp db import "/srv/database/backups/${VVV_SITE_NAME}.sql"
+      echo "Installed database backup"
+    else
       echo "Installing WordPress Stable..."
 
       if [ "${WP_TYPE}" = "subdomain" ]; then
