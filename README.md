@@ -137,6 +137,9 @@ custom:
          - query-monitor
          - https://github.com/crstauf/query-monitor-extend/archive/version/1.0.zip
          - https://github.com/norcross/airplane-mode/archive/master.zip
+    install_themes: # Various way to install a theme
+         - understrap
+         - https://github.com/understrap/understrap-child.git
     wpconfig_constants:
          WP_DEBUG: true
          WP_DEBUG_LOG: true
