@@ -9,6 +9,8 @@ The supported environments are:
 - A subdomain multisite
 - A subdirectory multisite
 
+The Nginx configuration for this site can be overriden by creating a `vvv-nginx-custom.conf`.
+
 # Configuration
 
 ### The minimum required configuration:
