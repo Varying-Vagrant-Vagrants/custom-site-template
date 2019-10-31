@@ -9,7 +9,7 @@ The supported environments are:
 - A subdomain multisite
 - A subdirectory multisite
 
-PS: If the `provision` folder of the website include a file `vvv-nginx-custom.conf` will be used to enable to do a custom nginx file instead of hthe default one.
+The Nginx configuration for this site can be overriden by creating a `vvv-nginx-custom.conf`.
 
 # Configuration
 
