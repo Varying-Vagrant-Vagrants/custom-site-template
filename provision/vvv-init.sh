@@ -19,7 +19,7 @@ echo -e " * Creating database '${DB_NAME}' (if it's not already there)"
 mysql -u root --password=root -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`"
 echo -e " * Granting the wp user priviledges to the '${DB_NAME}' database"
 mysql -u root --password=root -e "GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO wp@localhost IDENTIFIED BY 'wp';"
-echo -e " *  DB operations done."
+echo -e " * DB operations done."
 
 
 echo " * Setting up the log subfolder for Nginx logs"
@@ -39,7 +39,7 @@ if [ "${WP_TYPE}" != "none" ]; then
   fi
 
   if [[ ! -f "${VVV_PATH_TO_SITE}/public_html/wp-config.php" ]]; then
-    echo " & Configuring WordPress"
+    echo " * Configuring WordPress"
     noroot wp core config --dbname="${DB_NAME}" --dbuser=wp --dbpass=wp --quiet --extra-php <<PHP
 define( 'WP_DEBUG', true );
 define( 'SCRIPT_DEBUG', true );
