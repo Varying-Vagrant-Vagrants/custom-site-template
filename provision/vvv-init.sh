@@ -107,10 +107,10 @@ PHP
     fi
   else
     if [[ $(noroot wp core version) > "${WP_VERSION}" ]]; then
-      echo "Installing an older version of WordPress..."
+      echo " * Installing an older version of WordPress..."
       noroot wp core update --version="${WP_VERSION}" --force
     else
-      echo "Updating WordPress Stable..."
+      echo " * Updating WordPress Stable..."
       noroot wp core update --version="${WP_VERSION}"
     fi
   fi
@@ -118,17 +118,18 @@ else
   echo " * wp_type was set to none, provisioning WP was skipped, moving to Nginx configs"
 fi
 
-echo "Copying the sites Nginx config template"
+echo " * Copying the sites Nginx config template"
 if [ -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx-custom.conf" ]; then
-  echo "A vvv-nginx-custom.conf file was found"
+  echo " * A vvv-nginx-custom.conf file was found"
   cp -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx-custom.conf" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
 else
-  echo "Using the default vvv-nginx-default.conf, to customize, create a vvv-nginx-custom.conf"
+  echo " * Using the default vvv-nginx-default.conf, to customize, create a vvv-nginx-custom.conf"
   cp -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx-default.conf" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
 fi
 
 LIVE_URL=$(get_config_value 'live_url' '')
 if [ ! -z "$LIVE_URL" ]; then
+  echo " * Adding support for Live URL redirects to NGINX of the website's media"
   # replace potential protocols, and remove trailing slashes
   LIVE_URL=$(echo "${LIVE_URL}" | sed 's|https://||' | sed 's|http://||'  | sed 's:/*$::')
 
@@ -154,12 +155,14 @@ fi
 get_config_value 'wpconfig_constants' |
   while IFS='' read -r -d '' key &&
         IFS='' read -r -d '' value; do
+      echo " * Adding constants ${key} with value ${value} to wp-config.php"
       noroot wp config set "${key}" "${value}" --raw
   done
 
 WP_PLUGINS=$(get_config_value 'install_plugins' '')
 if [ ! -z "${WP_PLUGINS}" ]; then
   for plugin in ${WP_PLUGINS//- /$'\n'}; do
+      echo " * Installing/activating plugin ${plugin}"
       noroot wp plugin install "${plugin}" --activate
   done
 fi
@@ -167,6 +170,7 @@ fi
 WP_THEMES=$(get_config_value 'install_themes' '')
 if [ ! -z "${WP_THEMES}" ]; then
     for theme in ${WP_THEMES//- /$'\n'}; do
+      echo " * Installing/activating plugin ${theme}"
         noroot wp theme install "${theme}"
     done
 fi
