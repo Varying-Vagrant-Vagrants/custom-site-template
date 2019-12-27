@@ -159,7 +159,7 @@ else
   sed -i "s#{{LIVE_URL}}##" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
 fi
 
-$(shyaml get-values "sites.${VVV_SITE_NAME}.custom.wpconfig_constants" 2> /dev/null < ${VVV_CONFIG}) |
+shyaml get-values "sites.${VVV_SITE_NAME}.custom.wpconfig_constants" 2> /dev/null < ${VVV_CONFIG} |
   while IFS='' read -r -d '' key &&
         IFS='' read -r -d '' value; do
       $temp_value = $(echo "${value}" | awk '{print tolower($0)}')
