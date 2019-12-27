@@ -159,11 +159,16 @@ else
   sed -i "s#{{LIVE_URL}}##" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
 fi
 
-get_config_value 'wpconfig_constants' |
+$(shyaml get-values "sites.${VVV_SITE_NAME}.custom.wpconfig_constants" 2> /dev/null < ${VVV_CONFIG}) |
   while IFS='' read -r -d '' key &&
         IFS='' read -r -d '' value; do
+      $temp_value = $(echo "${value}" | awk '{print tolower($0)}')
       echo " * Adding constant '${key}' with value '${value}' to wp-config.php"
-      noroot wp config set "${key}" "${value}" --raw
+      if [ "${temp_value}" -eq "true" ] || [ "${temp_value}" -eq "false" ]; then
+        noroot wp config set "${key}" "${value}" --raw
+      else
+        noroot wp config set "${key}" "${value}"
+      fi
   done
 
 WP_PLUGINS=$(get_config_value 'install_plugins' '')
