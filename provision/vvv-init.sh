@@ -164,7 +164,7 @@ shyaml get-values-0 "sites.${VVV_SITE_NAME}.custom.wpconfig_constants" < "${VVV_
         IFS='' read -r -d '' value; do
       temp_value=$(echo "${value}" | awk '{print tolower($0)}')
       echo " * Adding constant '${key}' with value '${value}' to wp-config.php"
-      if [ "${temp_value}" == "true" ] || [ "${temp_value}" == "false" ] || [ $number =~ ^[+-]?[0-9]*$ ] || [ $number =~ ^[+-]?[0-9]+\.?[0-9]*$ ]; then
+      if [ "${temp_value}" == "true" ] || [ "${temp_value}" == "false" ] || [ "${number}" =~ ^[+-]?[0-9]*$ ] || [ "${number}" =~ ^[+-]?[0-9]+\.?[0-9]*$ ]; then
         noroot wp config set "${key}" "${value}" --raw
       else
         noroot wp config set "${key}" "${value}"
