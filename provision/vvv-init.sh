@@ -169,6 +169,16 @@ install_wp() {
   fi
 }
 
+update_wp() {
+  if [[ $(noroot wp core version) > "${WP_VERSION}" ]]; then
+    echo " * Installing an older version '${WP_VERSION}' of WordPress"
+    noroot wp core update --version="${WP_VERSION}" --force
+  else
+    echo " * Updating WordPress '${WP_VERSION}'"
+    noroot wp core update --version="${WP_VERSION}"
+  fi
+}
+
 setup_database
 setup_nginx_logs
 
@@ -197,13 +207,7 @@ if [ "${WP_TYPE}" != "none" ]; then
       install_wp
     fi
   else
-    if [[ $(noroot wp core version) > "${WP_VERSION}" ]]; then
-      echo " * Installing an older version '${WP_VERSION}' of WordPress"
-      noroot wp core update --version="${WP_VERSION}" --force
-    else
-      echo " * Updating WordPress '${WP_VERSION}'"
-      noroot wp core update --version="${WP_VERSION}"
-    fi
+    update_wp
   fi
 else
   echo " * wp_type was set to none, provisioning WP was skipped, moving to Nginx configs"
