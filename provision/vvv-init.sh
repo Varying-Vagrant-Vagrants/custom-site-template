@@ -89,12 +89,17 @@ END_HEREDOC
 }
 
 setup_wp_config_constants(){
-  get_config_value 'wpconfig_constants' |
-    while IFS='' read -r -d '' key &&
-          IFS='' read -r -d '' value; do
-        echo " * Adding constant '${key}' with value '${value}' to wp-config.php"
+  shyaml get-values-0 "sites.${VVV_SITE_NAME}.custom.wpconfig_constants" < "${VVV_CONFIG}" |
+  while IFS='' read -r -d '' key &&
+        IFS='' read -r -d '' value; do
+      lower_value=$(echo "${value}" | awk '{print tolower($0)}')
+      echo " * Adding constant '${key}' with value '${value}' to wp-config.php"
+      if [ "${lower_value}" == "true" ] || [ "${lower_value}" == "false" ] || [[ "${lower_value}" =~ ^[+-]?[0-9]*$ ]] || [[ "${lower_value}" =~ ^[+-]?[0-9]+\.?[0-9]*$ ]]; then
         noroot wp config set "${key}" "${value}" --raw
-    done
+      else
+        noroot wp config set "${key}" "${value}"
+      fi
+  done
 }
 
 restore_db_backup() {
