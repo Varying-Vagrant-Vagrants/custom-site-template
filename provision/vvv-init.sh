@@ -184,10 +184,12 @@ setup_nginx_logs
 
 cd "${VVV_PATH_TO_SITE}/public_html"
 
-echo " * Install type is '${WP_TYPE}'"
 
-if [ "${WP_TYPE}" != "none" ]; then
 
+if [ "${WP_TYPE}" == "none" ]; then
+  echo " * wp_type was set to none, provisioning WP was skipped, moving to Nginx configs"
+else
+  echo " * Install type is '${WP_TYPE}'"
   # Install and configure the latest stable version of WordPress
   if [[ ! -f "${VVV_PATH_TO_SITE}/public_html/wp-load.php" ]]; then
     download_wordpress "${VVV_PATH_TO_SITE}/public_html" "${WP_VERSION}" "${WP_LOCALE}"
@@ -209,8 +211,6 @@ if [ "${WP_TYPE}" != "none" ]; then
   else
     update_wp
   fi
-else
-  echo " * wp_type was set to none, provisioning WP was skipped, moving to Nginx configs"
 fi
 
 copy_nginx_configs
