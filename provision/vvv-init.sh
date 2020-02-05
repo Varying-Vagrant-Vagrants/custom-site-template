@@ -15,20 +15,81 @@ DB_NAME=$(get_config_value 'db_name' "${VVV_SITE_NAME}")
 DB_NAME=${DB_NAME//[\\\/\.\<\>\:\"\'\|\?\!\*]/}
 
 # Make a database, if we don't already have one
-echo -e " * Creating database '${DB_NAME}' (if it's not already there)"
-mysql -u root --password=root -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`"
-echo -e " * Granting the wp user priviledges to the '${DB_NAME}' database"
-mysql -u root --password=root -e "GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO wp@localhost IDENTIFIED BY 'wp';"
-echo -e " * DB operations done."
+setup_database() {
+  echo -e " * Creating database '${DB_NAME}' (if it's not already there)"
+  mysql -u root --password=root -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`"
+  echo -e " * Granting the wp user priviledges to the '${DB_NAME}' database"
+  mysql -u root --password=root -e "GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO wp@localhost IDENTIFIED BY 'wp';"
+  echo -e " * DB operations done."
+}
 
+setup_nginx_folders() {
+  echo " * Setting up the log subfolder for Nginx logs"
+  noroot mkdir -p "${VVV_PATH_TO_SITE}/log"
+  noroot touch "${VVV_PATH_TO_SITE}/log/nginx-error.log"
+  noroot touch "${VVV_PATH_TO_SITE}/log/nginx-access.log"
+  echo " * Creating public_html folder if it doesn't exist already"
+  noroot mkdir -p "${VVV_PATH_TO_SITE}/public_html"
+}
 
-echo " * Setting up the log subfolder for Nginx logs"
-noroot mkdir -p "${VVV_PATH_TO_SITE}/log"
-noroot touch "${VVV_PATH_TO_SITE}/log/nginx-error.log"
-noroot touch "${VVV_PATH_TO_SITE}/log/nginx-access.log"
+install_plugins() {
+  WP_PLUGINS=$(get_config_value 'install_plugins' '')
+  if [ ! -z "${WP_PLUGINS}" ]; then
+    for plugin in ${WP_PLUGINS//- /$'\n'}; do
+        echo " * Installing/activating plugin: '${plugin}'"
+        noroot wp plugin install "${plugin}" --activate
+    done
+  fi
+}
 
-echo " * Creating public_html folder if it doesn't exist already"
-noroot mkdir -p "${VVV_PATH_TO_SITE}/public_html"
+install_themes() {
+  WP_THEMES=$(get_config_value 'install_themes' '')
+  if [ ! -z "${WP_THEMES}" ]; then
+      for theme in ${WP_THEMES//- /$'\n'}; do
+        echo " * Installing theme: '${theme}'"
+        noroot wp theme install "${theme}"
+      done
+  fi
+}
+
+copy_nginx_configs() {
+  echo " * Copying the sites Nginx config template"
+  if [ -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx-custom.conf" ]; then
+    echo " * A vvv-nginx-custom.conf file was found"
+    cp -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx-custom.conf" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
+  else
+    echo " * Using the default vvv-nginx-default.conf, to customize, create a vvv-nginx-custom.conf"
+    cp -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx-default.conf" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
+  fi
+
+  LIVE_URL=$(get_config_value 'live_url' '')
+  if [ ! -z "$LIVE_URL" ]; then
+    echo " * Adding support for Live URL redirects to NGINX of the website's media"
+    # replace potential protocols, and remove trailing slashes
+    LIVE_URL=$(echo "${LIVE_URL}" | sed 's|https://||' | sed 's|http://||'  | sed 's:/*$::')
+
+    redirect_config=$((cat <<END_HEREDOC
+if (!-e \$request_filename) {
+  rewrite ^/[_0-9a-zA-Z-]+(/wp-content/uploads/.*) \$1;
+}
+if (!-e \$request_filename) {
+  rewrite ^/wp-content/uploads/(.*)\$ \$scheme://${LIVE_URL}/wp-content/uploads/\$1 redirect;
+}
+END_HEREDOC
+
+    ) |
+    # pipe and escape new lines of the HEREDOC for usage in sed
+    sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/\\n\\1/g'
+    )
+
+    sed -i -e "s|\(.*\){{LIVE_URL}}|\1${redirect_config}|" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
+  else
+    sed -i "s#{{LIVE_URL}}##" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
+  fi
+}
+
+setup_database
+setup_nginx_logs
 
 cd "${VVV_PATH_TO_SITE}/public_html"
 
@@ -125,39 +186,7 @@ else
   echo " * wp_type was set to none, provisioning WP was skipped, moving to Nginx configs"
 fi
 
-echo " * Copying the sites Nginx config template"
-if [ -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx-custom.conf" ]; then
-  echo " * A vvv-nginx-custom.conf file was found"
-  cp -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx-custom.conf" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
-else
-  echo " * Using the default vvv-nginx-default.conf, to customize, create a vvv-nginx-custom.conf"
-  cp -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx-default.conf" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
-fi
-
-LIVE_URL=$(get_config_value 'live_url' '')
-if [ ! -z "$LIVE_URL" ]; then
-  echo " * Adding support for Live URL redirects to NGINX of the website's media"
-  # replace potential protocols, and remove trailing slashes
-  LIVE_URL=$(echo "${LIVE_URL}" | sed 's|https://||' | sed 's|http://||'  | sed 's:/*$::')
-
-  redirect_config=$((cat <<END_HEREDOC
-if (!-e \$request_filename) {
-  rewrite ^/[_0-9a-zA-Z-]+(/wp-content/uploads/.*) \$1;
-}
-if (!-e \$request_filename) {
-  rewrite ^/wp-content/uploads/(.*)\$ \$scheme://${LIVE_URL}/wp-content/uploads/\$1 redirect;
-}
-END_HEREDOC
-
-  ) |
-  # pipe and escape new lines of the HEREDOC for usage in sed
-  sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/\\n\\1/g'
-  )
-
-  sed -i -e "s|\(.*\){{LIVE_URL}}|\1${redirect_config}|" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
-else
-  sed -i "s#{{LIVE_URL}}##" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
-fi
+copy_nginx_configs
 
 get_config_value 'wpconfig_constants' |
   while IFS='' read -r -d '' key &&
@@ -166,20 +195,7 @@ get_config_value 'wpconfig_constants' |
       noroot wp config set "${key}" "${value}" --raw
   done
 
-WP_PLUGINS=$(get_config_value 'install_plugins' '')
-if [ ! -z "${WP_PLUGINS}" ]; then
-  for plugin in ${WP_PLUGINS//- /$'\n'}; do
-      echo " * Installing/activating plugin: '${plugin}'"
-      noroot wp plugin install "${plugin}" --activate
-  done
-fi
-
-WP_THEMES=$(get_config_value 'install_themes' '')
-if [ ! -z "${WP_THEMES}" ]; then
-    for theme in ${WP_THEMES//- /$'\n'}; do
-      echo " * Installing theme: '${theme}'"
-      noroot wp theme install "${theme}"
-    done
-fi
+install_plugins
+install_themes
 
 echo " * Site Template provisioner script completed for ${VVV_SITE_NAME}"
