@@ -159,7 +159,8 @@ else
   sed -i "s#{{LIVE_URL}}##" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
 fi
 
-shyaml get-values-0 "sites.${VVV_SITE_NAME}.custom.wpconfig_constants" < "${VVV_CONFIG}" |
+set +e
+shyaml get-values-0 -q "sites.${VVV_SITE_NAME}.custom.wpconfig_constants" < "${VVV_CONFIG}" |
   while IFS='' read -r -d '' key &&
         IFS='' read -r -d '' value; do
       lower_value=$(echo "${value}" | awk '{print tolower($0)}')
@@ -170,6 +171,7 @@ shyaml get-values-0 "sites.${VVV_SITE_NAME}.custom.wpconfig_constants" < "${VVV_
         noroot wp config set "${key}" "${value}"
       fi
   done
+set -e
 
 WP_PLUGINS=$(get_config_value 'install_plugins' '')
 if [ ! -z "${WP_PLUGINS}" ]; then
