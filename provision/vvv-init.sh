@@ -89,7 +89,8 @@ END_HEREDOC
 }
 
 setup_wp_config_constants(){
-  shyaml get-values-0 "sites.${VVV_SITE_NAME}.custom.wpconfig_constants" < "${VVV_CONFIG}" |
+  set +e
+  shyaml get-values-0 -q "sites.${VVV_SITE_NAME}.custom.wpconfig_constants" < "${VVV_CONFIG}" |
   while IFS='' read -r -d '' key &&
         IFS='' read -r -d '' value; do
       lower_value=$(echo "${value}" | awk '{print tolower($0)}')
@@ -100,6 +101,7 @@ setup_wp_config_constants(){
         noroot wp config set "${key}" "${value}"
       fi
   done
+  set -e
 }
 
 restore_db_backup() {
@@ -180,7 +182,7 @@ update_wp() {
 }
 
 setup_database
-setup_nginx_logs
+setup_nginx_folders
 
 cd "${VVV_PATH_TO_SITE}/public_html"
 
