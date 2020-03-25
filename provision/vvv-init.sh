@@ -128,6 +128,32 @@ define( 'SCRIPT_DEBUG', true );
 PHP
 }
 
+check_delete_default_plugins() {
+  DELETE_DEFAULT_PLUGINS=$(get_config_value 'delete_default_plugins' '')
+  if [ ! -z "${DELETE_DEFAULT_PLUGINS}" ]; then
+    echo " * Deleting the default plugins akismet and hello dolly"
+    noroot wp plugin delete akismet
+    noroot wp plugin delete hello
+  fi
+}
+
+maybe_install_test_content() {
+  INSTALL_TEST_CONTENT=$(get_config_value 'install_test_content' "")
+  if [ ! -z "${INSTALL_TEST_CONTENT}" ]; then
+    echo " * Downloading test content from github.com/poststatus/wptest/master/wptest.xml"
+    curl -s https://raw.githubusercontent.com/poststatus/wptest/master/wptest.xml > import.xml
+    echo " * Installing the wordpress-importer"
+    noroot wp plugin install wordpress-importer
+    echo " * Activating the wordpress-importer"
+    noroot wp plugin activate wordpress-importer
+    echo " * Importing test data"
+    noroot wp import import.xml --authors=create
+    echo " * Cleaning up import.xml"
+    rm import.xml
+    echo " * Test content installed"
+  fi
+}
+
 install_wp() {
   echo " * Installing WordPress"
   ADMIN_USER=$(get_config_value 'admin_user' "admin")
@@ -147,28 +173,16 @@ install_wp() {
     noroot wp core multisite-install --url="${DOMAIN}" --title="${SITE_TITLE}" --admin_name="${ADMIN_USER}" --admin_email="${ADMIN_EMAIL}" --admin_password="${ADMIN_PASSWORD}"
     echo " * Multisite install complete"
   fi
-
-  DELETE_DEFAULT_PLUGINS=$(get_config_value 'delete_default_plugins' '')
-  if [ ! -z "${DELETE_DEFAULT_PLUGINS}" ]; then
-    echo " * Deleting the default plugins akismet and hello dolly"
-    noroot wp plugin delete akismet
-    noroot wp plugin delete hello
-  fi
-
-  INSTALL_TEST_CONTENT=$(get_config_value 'install_test_content' "")
-  if [ ! -z "${INSTALL_TEST_CONTENT}" ]; then
-    echo " * Downloading test content from github.com/poststatus/wptest/master/wptest.xml"
-    curl -s https://raw.githubusercontent.com/poststatus/wptest/master/wptest.xml > import.xml
-    echo " * Installing the wordpress-importer"
-    noroot wp plugin install wordpress-importer
-    echo " * Activating the wordpress-importer"
-    noroot wp plugin activate wordpress-importer
-    echo " * Importing test data"
-    noroot wp import import.xml --authors=create
-    echo " * Cleaning up import.xml"
-    rm import.xml
-    echo " * Test content installed"
-  fi
+  
+  WP_CONTENT_REPO=$(get_config_value 'wp_content_repo' '')
+  if [ -z "${WP_CONTENT_REPO}" ]; then
+    check_delete_default_plugins
+    maybe_install_test_content
+  else
+    echo " * Cloning custom wp-content folder from \"${WP_CONTENT_REPO}\""
+    rm -rf "${VVV_PATH_TO_SITE}/public_html/wp-content"
+    git clone --recursive "${WP_CONTENT_REPO}" "${VVV_PATH_TO_SITE}/public_html/wp-content"
+    echo " * Cloning wp-content completed"
 }
 
 update_wp() {
@@ -185,8 +199,6 @@ setup_database
 setup_nginx_folders
 
 cd "${VVV_PATH_TO_SITE}/public_html"
-
-
 
 if [ "${WP_TYPE}" == "none" ]; then
   echo " * wp_type was set to none, provisioning WP was skipped, moving to Nginx configs"
