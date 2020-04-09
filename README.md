@@ -16,7 +16,26 @@ The supported environments are:
 
 The Nginx configuration for this site can be overriden by creating a `vvv-nginx-custom.conf`.
 
-## Configuration
+## Configuration Options
+
+- `site_title`: The main name/title of the site, defaults to `sitename.test`
+- `wp_version`: The version of WordPress to install if no installation is present, defaults to `latest`
+- `locale`: The locale for WP Admin language, defaults to `en_US`
+- `wp_type`: The type of WordPress install, the default is `single`
+  - `single` will create a standard WP install
+  - `subdomain` will create a subdomain multisite
+  - `subdirectory` will create a subdirectory multisite
+  - `none` will skip installing WordPress, and let you install WordPress manually (useful for custom folder layouts)
+- `install_plugins`: A list/array of plugins to install and activate. Similar to the hosts array. These values are passed to the WP CLI plugin install command and take the same format.
+- `install_themes`:  A list/array of themes to install. Similar to the hosts array. These values are passed to the WP CLI plugin install command and take the same format.
+- `live_url`: The production site URL, this tells Nginx to redirect requests for assets to the production server if they're not found. This prevents the need to store those assets locally.
+- `admin_user`: The name of the initial admin user, defaults to `admin`
+- `admin_password`: The password for the initial admin user, defaults to `password`
+- `admin_email`: The email address of the initial admin user, defaults to `admin@local.test`
+- `delete_default_plugins`: Deletes the Hello Dolly and Akismet plugins on install
+- `install_test_content`: When first installing WordPress, run the importer and import standard test content from github.com/poststatus/wptest
+
+## Examples
 
 ### The Minimum Required Configuration
 
