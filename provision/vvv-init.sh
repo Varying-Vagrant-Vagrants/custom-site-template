@@ -13,7 +13,7 @@ WP_LOCALE=$(get_config_value 'locale' 'en_US')
 WP_TYPE=$(get_config_value 'wp_type' "single")
 DB_NAME=$(get_config_value 'db_name' "${VVV_SITE_NAME}")
 DB_NAME=${DB_NAME//[\\\/\.\<\>\:\"\'\|\?\!\*]/}
-DB_PREFIX=${get_config_value 'db_prefix' 'wp_'}
+DB_PREFIX=$(get_config_value 'db_prefix' 'wp_')
 
 # Make a database, if we don't already have one
 setup_database() {
