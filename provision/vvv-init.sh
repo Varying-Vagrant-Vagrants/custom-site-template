@@ -187,10 +187,18 @@ update_wp() {
   fi
 }
 
+setup_cli() {
+  rm -f wp-cli.yml
+  if [ ! -z "${PUBLIC_DIR}" ]; then
+    echo "path: ${PUBLIC_DIR}" > wp-cli.yml
+  fi
+}
+
+cd "${VVV_PATH_TO_SITE}"
+
+setup_cli
 setup_database
 setup_nginx_folders
-
-cd "${VVV_PATH_TO_SITE}/${PUBLIC_DIR}"
 
 if [ "${WP_TYPE}" == "none" ]; then
   echo " * wp_type was set to none, provisioning WP was skipped, moving to Nginx configs"
