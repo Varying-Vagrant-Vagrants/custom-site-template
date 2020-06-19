@@ -16,6 +16,11 @@ WP_LOCALE=$(get_config_value 'locale' 'en_US')
 WP_TYPE=$(get_config_value 'wp_type' "single")
 WP_VERSION=$(get_config_value 'wp_version' 'latest')
 
+PUBLIC_DIR_PATH="${VVV_PATH_TO_SITE}"
+if [ ! -z "${PUBLIC_DIR}" ]; then
+  PUBLIC_DIR_PATH="${PUBLIC_DIR_PATH}/${PUBLIC_DIR}"
+fi
+
 # Make a database, if we don't already have one
 setup_database() {
   echo -e " * Creating database '${DB_NAME}' (if it's not already there)"
@@ -31,7 +36,7 @@ setup_nginx_folders() {
   noroot touch "${VVV_PATH_TO_SITE}/log/nginx-error.log"
   noroot touch "${VVV_PATH_TO_SITE}/log/nginx-access.log"
   echo " * Creating the public folder at '${PUBLIC_DIR}' if it doesn't exist already"
-  noroot mkdir -p "${VVV_PATH_TO_SITE}/${PUBLIC_DIR}"
+  noroot mkdir -p "${PUBLIC_DIR_PATH}"
 }
 
 install_plugins() {
@@ -65,7 +70,7 @@ copy_nginx_configs() {
   fi
   
   echo " * Applying public dir setting to Nginx config"
-  sed -i "s#{vvv_public_dir}#${PUBLIC_DIR}#" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
+  sed -i "s#{vvv_public_dir}#/${PUBLIC_DIR}#" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
 
   LIVE_URL=$(get_config_value 'live_url' '')
   if [ ! -z "$LIVE_URL" ]; then
@@ -205,18 +210,18 @@ if [ "${WP_TYPE}" == "none" ]; then
 else
   echo " * Install type is '${WP_TYPE}'"
   # Install and configure the latest stable version of WordPress
-  if [[ ! -f "${VVV_PATH_TO_SITE}/${PUBLIC_DIR}/wp-load.php" ]]; then
+  if [[ ! -f "${PUBLIC_DIR_PATH}/wp-load.php" ]]; then
     download_wordpress "${WP_VERSION}" "${WP_LOCALE}"
   fi
 
-  if [[ ! -f "${VVV_PATH_TO_SITE}/${PUBLIC_DIR}/wp-config.php" ]]; then
+  if [[ ! -f "${PUBLIC_DIR_PATH}/wp-config.php" ]]; then
     initial_wpconfig
   fi
 
   if ! $(noroot wp core is-installed ); then
     echo " * WordPress is present but isn't installed to the database, checking for SQL dumps in wp-content/database.sql or the main backup folder."
-    if [ -f "${VVV_PATH_TO_SITE}/${PUBLIC_DIR}/wp-content/database.sql" ]; then
-      restore_db_backup "${VVV_PATH_TO_SITE}/${PUBLIC_DIR}/wp-content/database.sql"
+    if [ -f "${PUBLIC_DIR_PATH}/wp-content/database.sql" ]; then
+      restore_db_backup "${PUBLIC_DIR_PATH}/wp-content/database.sql"
     elif [ -f "/srv/database/backups/${VVV_SITE_NAME}.sql" ]; then
       restore_db_backup "/srv/database/backups/${VVV_SITE_NAME}.sql"
     else
