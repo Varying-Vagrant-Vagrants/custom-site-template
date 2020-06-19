@@ -205,7 +205,7 @@ else
     initial_wpconfig
   fi
 
-  if ! $(noroot wp core is-installed ); then
+  if ! $(noroot wp core is-installed --path="${VVV_PATH_TO_SITE}/${PUBLIC_DIR}" ); then
     echo " * WordPress is present but isn't installed to the database, checking for SQL dumps in wp-content/database.sql or the main backup folder."
     if [ -f "${VVV_PATH_TO_SITE}/${PUBLIC_DIR}/wp-content/database.sql" ]; then
       restore_db_backup "${VVV_PATH_TO_SITE}/${PUBLIC_DIR}/wp-content/database.sql"
