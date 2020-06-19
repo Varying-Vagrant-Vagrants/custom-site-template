@@ -39,7 +39,7 @@ install_plugins() {
   if [ ! -z "${WP_PLUGINS}" ]; then
     for plugin in ${WP_PLUGINS//- /$'\n'}; do
         echo " * Installing/activating plugin: '${plugin}'"
-        noroot wp plugin install "${plugin}" --activate
+        noroot wp plugin install "${plugin}" --activate --path="${VVV_PATH_TO_SITE}/${PUBLIC_DIR}"
     done
   fi
 }
@@ -49,7 +49,7 @@ install_themes() {
   if [ ! -z "${WP_THEMES}" ]; then
       for theme in ${WP_THEMES//- /$'\n'}; do
         echo " * Installing theme: '${theme}'"
-        noroot wp theme install "${theme}"
+        noroot wp theme install "${theme}" --path="${VVV_PATH_TO_SITE}/${PUBLIC_DIR}"
       done
   fi
 }
@@ -101,9 +101,9 @@ setup_wp_config_constants(){
       lower_value=$(echo "${value}" | awk '{print tolower($0)}')
       echo " * Adding constant '${key}' with value '${value}' to wp-config.php"
       if [ "${lower_value}" == "true" ] || [ "${lower_value}" == "false" ] || [[ "${lower_value}" =~ ^[+-]?[0-9]*$ ]] || [[ "${lower_value}" =~ ^[+-]?[0-9]+\.?[0-9]*$ ]]; then
-        noroot wp config set "${key}" "${value}" --raw
+        noroot wp config set "${key}" "${value}" --raw --path="${VVV_PATH_TO_SITE}/${PUBLIC_DIR}"
       else
-        noroot wp config set "${key}" "${value}"
+        noroot wp config set "${key}" "${value}" --path="${VVV_PATH_TO_SITE}/${PUBLIC_DIR}"
       fi
   done
   set -e
@@ -128,7 +128,7 @@ download_wordpress() {
 
 initial_wpconfig() {
   echo " * Setting up wp-config.php"
-  noroot wp core config --dbname="${DB_NAME}" --dbprefix="${DB_PREFIX}" --dbuser=wp --dbpass=wp  --extra-php <<PHP
+  noroot wp core config --dbname="${DB_NAME}" --dbprefix="${DB_PREFIX}" --dbuser=wp --dbpass=wp  --path="${VVV_PATH_TO_SITE}/${PUBLIC_DIR}" --extra-php <<PHP
 define( 'WP_DEBUG', true );
 define( 'SCRIPT_DEBUG', true );
 PHP
@@ -141,24 +141,24 @@ install_wp() {
   ADMIN_EMAIL=$(get_config_value 'admin_email' "admin@local.test")
 
   echo " * Installing using wp core install --url=\"${DOMAIN}\" --title=\"${SITE_TITLE}\" --admin_name=\"${ADMIN_USER}\" --admin_email=\"${ADMIN_EMAIL}\" --admin_password=\"${ADMIN_PASSWORD}\" --path=\"${VVV_PATH_TO_SITE}/${PUBLIC_DIR}\""
-  noroot wp core install --url="${DOMAIN}" --title="${SITE_TITLE}" --admin_name="${ADMIN_USER}" --admin_email="${ADMIN_EMAIL}" --admin_password="${ADMIN_PASSWORD}"
+  noroot wp core install --url="${DOMAIN}" --title="${SITE_TITLE}" --admin_name="${ADMIN_USER}" --admin_email="${ADMIN_EMAIL}" --admin_password="${ADMIN_PASSWORD}" --path="${VVV_PATH_TO_SITE}/${PUBLIC_DIR}"
   echo " * WordPress was installed, with the username '${ADMIN_USER}', and the password '${ADMIN_PASSWORD}' at '${ADMIN_EMAIL}'"
 
   if [ "${WP_TYPE}" = "subdomain" ]; then
     echo " * Running Multisite install using wp core multisite-install --subdomains --url=\"${DOMAIN}\" --title=\"${SITE_TITLE}\" --admin_name=\"${ADMIN_USER}\" --admin_email=\"${ADMIN_EMAIL}\" --admin_password=\"${ADMIN_PASSWORD}\" --path=\"${VVV_PATH_TO_SITE}/${PUBLIC_DIR}\""
-    noroot wp core multisite-install --subdomains --url="${DOMAIN}" --title="${SITE_TITLE}" --admin_name="${ADMIN_USER}" --admin_email="${ADMIN_EMAIL}" --admin_password="${ADMIN_PASSWORD}"
+    noroot wp core multisite-install --subdomains --url="${DOMAIN}" --title="${SITE_TITLE}" --admin_name="${ADMIN_USER}" --admin_email="${ADMIN_EMAIL}" --admin_password="${ADMIN_PASSWORD}" --path="${VVV_PATH_TO_SITE}/${PUBLIC_DIR}"
     echo " * Multisite install complete"
   elif [ "${WP_TYPE}" = "subdirectory" ]; then
     echo " * Running Multisite install using wp core ${INSTALL_COMMAND} --url=\"${DOMAIN}\" --title=\"${SITE_TITLE}\" --admin_name=\"${ADMIN_USER}\" --admin_email=\"${ADMIN_EMAIL}\" --admin_password=\"${ADMIN_PASSWORD}\" --path=\"${VVV_PATH_TO_SITE}/${PUBLIC_DIR}\""
-    noroot wp core multisite-install --url="${DOMAIN}" --title="${SITE_TITLE}" --admin_name="${ADMIN_USER}" --admin_email="${ADMIN_EMAIL}" --admin_password="${ADMIN_PASSWORD}"
+    noroot wp core multisite-install --url="${DOMAIN}" --title="${SITE_TITLE}" --admin_name="${ADMIN_USER}" --admin_email="${ADMIN_EMAIL}" --admin_password="${ADMIN_PASSWORD}" --path="${VVV_PATH_TO_SITE}/${PUBLIC_DIR}"
     echo " * Multisite install complete"
   fi
 
   DELETE_DEFAULT_PLUGINS=$(get_config_value 'delete_default_plugins' '')
   if [ ! -z "${DELETE_DEFAULT_PLUGINS}" ]; then
     echo " * Deleting the default plugins akismet and hello dolly"
-    noroot wp plugin delete akismet
-    noroot wp plugin delete hello
+    noroot wp plugin delete akismet --path="${VVV_PATH_TO_SITE}/${PUBLIC_DIR}"
+    noroot wp plugin delete hello --path="${VVV_PATH_TO_SITE}/${PUBLIC_DIR}"
   fi
 
   INSTALL_TEST_CONTENT=$(get_config_value 'install_test_content' "")
@@ -180,10 +180,10 @@ install_wp() {
 update_wp() {
   if [[ $(noroot wp core version) > "${WP_VERSION}" ]]; then
     echo " * Installing an older version '${WP_VERSION}' of WordPress"
-    noroot wp core update --version="${WP_VERSION}" --force
+    noroot wp core update --version="${WP_VERSION}" --force --path="${VVV_PATH_TO_SITE}/${PUBLIC_DIR}"
   else
     echo " * Updating WordPress '${WP_VERSION}'"
-    noroot wp core update --version="${WP_VERSION}"
+    noroot wp core update --version="${WP_VERSION}" --path="${VVV_PATH_TO_SITE}/${PUBLIC_DIR}"
   fi
 }
 
@@ -191,8 +191,6 @@ setup_database
 setup_nginx_folders
 
 cd "${VVV_PATH_TO_SITE}/${PUBLIC_DIR}"
-
-
 
 if [ "${WP_TYPE}" == "none" ]; then
   echo " * wp_type was set to none, provisioning WP was skipped, moving to Nginx configs"
