@@ -65,7 +65,7 @@ copy_nginx_configs() {
   fi
   
   echo " * Applying public dir setting to Nginx config"
-  sed -i -e "s|\(.*\){{vvv_public_dir}}|\1${PUBLIC_DIR}|" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
+  sed -i "s#{vvv_public_dir}#${PUBLIC_DIR}#" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
 
   LIVE_URL=$(get_config_value 'live_url' '')
   if [ ! -z "$LIVE_URL" ]; then
