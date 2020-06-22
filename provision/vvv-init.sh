@@ -195,7 +195,7 @@ update_wp() {
 setup_cli() {
   rm -f wp-cli.yml
   if [ ! -z "${PUBLIC_DIR}" ]; then
-    echo "path: ${PUBLIC_DIR}" > wp-cli.yml
+    echo "path: \"${PUBLIC_DIR}\"" > wp-cli.yml
   fi
 }
 
