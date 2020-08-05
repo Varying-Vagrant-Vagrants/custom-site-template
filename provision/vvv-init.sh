@@ -193,9 +193,11 @@ update_wp() {
 }
 
 setup_cli() {
-  rm -f wp-cli.yml
+  rm -f "${VVV_PATH_TO_SITE}/wp-cli.yml"
   if [ ! -z "${PUBLIC_DIR}" ]; then
-    echo "path: \"${PUBLIC_DIR}\"" > wp-cli.yml
+    echo "path: \"${PUBLIC_DIR}\"" > "${VVV_PATH_TO_SITE}/wp-cli.yml"
+  else
+    echo "path: \"public_html\"" > "${VVV_PATH_TO_SITE}/wp-cli.yml"
   fi
 }
 
