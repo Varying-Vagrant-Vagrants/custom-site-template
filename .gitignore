@@ -1,5 +1,17 @@
+# DANGER!!!
+# This repo is not for your website!
+# You should never commit files from your site here!!!
+# So Ignore everything
+*
+# And explicitly extra ignore public_html
+/public_html/
+# VVV will hard reset and pull on provision,
+# and you will lose all your work
+# DANGER!!!
 
-/log/
-/provision/vvv-nginx.conf
-/public_html
-.history
+# But don't ignore these files that VVV needs
+!.gitignore
+!README.md
+!wp-cli.yml
+!/provision/vvv-init.sh
+!/provision/vvv-nginx-default.conf
