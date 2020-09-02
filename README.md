@@ -2,7 +2,7 @@
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/6fc9d45abb02454aa052771bda2d40ff)](https://www.codacy.com/gh/Varying-Vagrant-Vagrants/custom-site-template?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Varying-Vagrant-Vagrants/custom-site-template&amp;utm_campaign=Badge_Grade)
 
-For when you just need a simple dev site
+This tells VVV how to install WordPress and set up Nginx, great for doing development work or testing out plugins and themes.
 
  - [Overview](#overview)
  - [Configuration Options](#configuration-options)
@@ -10,7 +10,7 @@ For when you just need a simple dev site
 
 ## Overview
 
-This template will allow you to create a WordPress dev environment using only `vvv-custom.yml`.
+This template will allow you to create a WordPress dev environment using only `config/config.yml`.
 
 The supported environments are:
 
@@ -18,7 +18,7 @@ The supported environments are:
 - A subdomain multisite
 - A subdirectory multisite
 
-The Nginx configuration for this site can be overriden by creating a `vvv-nginx-custom.conf`.
+The Nginx configuration for this site can be overriden by creating a `provision/vvv-nginx-custom.conf`.
 
 ## Configuration Options
 
