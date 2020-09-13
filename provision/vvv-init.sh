@@ -57,7 +57,7 @@ install_themes() {
   WP_THEMES=$(get_config_value 'install_themes' '')
   if [ ! -z "${WP_THEMES}" ]; then
       for theme in ${WP_THEMES//- /$'\n'}; do
-        if [ ! $(noroot wp plugin is-installed "${plugin}") ]; then
+        if [ ! $(noroot wp theme is-installed "${theme}") ]; then
           echo " * Installing theme: '${theme}'"
           noroot wp theme install "${theme}"
         else
