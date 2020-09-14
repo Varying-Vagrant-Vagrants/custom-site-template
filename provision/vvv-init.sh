@@ -43,8 +43,12 @@ install_plugins() {
   WP_PLUGINS=$(get_config_value 'install_plugins' '')
   if [ ! -z "${WP_PLUGINS}" ]; then
     for plugin in ${WP_PLUGINS//- /$'\n'}; do
-        echo " * Installing/activating plugin: '${plugin}'"
+      if [ ! $(wp plugin is-installed "${plugin}") ]; then
+        echo " * Installing and activating plugin: '${plugin}'"
         noroot wp plugin install "${plugin}" --activate
+      else
+        echo " * The ${plugin} plugin is already installed."
+      fi
     done
   fi
 }
@@ -53,8 +57,12 @@ install_themes() {
   WP_THEMES=$(get_config_value 'install_themes' '')
   if [ ! -z "${WP_THEMES}" ]; then
       for theme in ${WP_THEMES//- /$'\n'}; do
-        echo " * Installing theme: '${theme}'"
-        noroot wp theme install "${theme}"
+        if [ ! $(noroot wp theme is-installed "${theme}") ]; then
+          echo " * Installing theme: '${theme}'"
+          noroot wp theme install "${theme}"
+        else
+          echo " * The ${theme} theme is already installed."
+        fi
       done
   fi
 }
@@ -63,14 +71,14 @@ copy_nginx_configs() {
   echo " * Copying the sites Nginx config template"
   if [ -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx-custom.conf" ]; then
     echo " * A vvv-nginx-custom.conf file was found"
-    cp -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx-custom.conf" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
+    noroot cp -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx-custom.conf" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
   else
     echo " * Using the default vvv-nginx-default.conf, to customize, create a vvv-nginx-custom.conf"
-    cp -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx-default.conf" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
+    noroot cp -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx-default.conf" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
   fi
   
   echo " * Applying public dir setting to Nginx config"
-  sed -i "s#{vvv_public_dir}#/${PUBLIC_DIR}#" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
+  noroot sed -i "s#{vvv_public_dir}#/${PUBLIC_DIR}#" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
 
   LIVE_URL=$(get_config_value 'live_url' '')
   if [ ! -z "$LIVE_URL" ]; then
@@ -92,15 +100,15 @@ END_HEREDOC
     sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/\\n\\1/g'
     )
 
-    sed -i -e "s|\(.*\){{LIVE_URL}}|\1${redirect_config}|" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
+    noroot sed -i -e "s|\(.*\){{LIVE_URL}}|\1${redirect_config}|" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
   else
-    sed -i "s#{{LIVE_URL}}##" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
+    noroot sed -i "s#{{LIVE_URL}}##" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
   fi
 }
 
 setup_wp_config_constants(){
   set +e
-  shyaml get-values-0 -q "sites.${VVV_SITE_NAME}.custom.wpconfig_constants" < "${VVV_CONFIG}" |
+  noroot shyaml get-values-0 -q "sites.${VVV_SITE_NAME}.custom.wpconfig_constants" < "${VVV_CONFIG}" |
   while IFS='' read -r -d '' key &&
         IFS='' read -r -d '' value; do
       lower_value=$(echo "${value}" | awk '{print tolower($0)}')
