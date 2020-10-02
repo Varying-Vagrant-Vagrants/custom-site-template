@@ -240,6 +240,11 @@ else
   else
     update_wp
   fi
+  cat <<EOF > "${PUBLIC_DIR_PATH}/wp-cli.yml"
+@${VVV_SITE_NAME}:
+  ssh: vagrant@192.168.50.4
+  path: /srv/www/${VVV_SITE_NAME}/public_html
+EOF
 fi
 
 copy_nginx_configs
