@@ -242,7 +242,7 @@ else
   fi
   cat <<EOF > "${PUBLIC_DIR_PATH}/wp-cli.yml"
 @${VVV_SITE_NAME}:
-  ssh: vagrant@192.168.50.4
+  ssh: vagrant@vvv.test
   path: /srv/www/${VVV_SITE_NAME}/public_html
 EOF
 fi
