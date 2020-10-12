@@ -147,6 +147,23 @@ define( 'SCRIPT_DEBUG', true );
 PHP
 }
 
+maybe_import_test_content() {
+  INSTALL_TEST_CONTENT=$(get_config_value 'install_test_content' "")
+  if [ ! -z "${INSTALL_TEST_CONTENT}" ]; then
+    echo " * Downloading test content from github.com/poststatus/wptest/master/wptest.xml"
+    noroot curl -s https://raw.githubusercontent.com/poststatus/wptest/master/wptest.xml > /tmp/import.xml
+    echo " * Installing the wordpress-importer"
+    noroot wp plugin install wordpress-importer
+    echo " * Activating the wordpress-importer"
+    noroot wp plugin activate wordpress-importer
+    echo " * Importing test data"
+    noroot wp import import.xml --authors=create
+    echo " * Cleaning up import.xml"
+    rm /tmp/import.xml
+    echo " * Test content installed"
+  fi
+}
+
 install_wp() {
   echo " * Installing WordPress"
   ADMIN_USER=$(get_config_value 'admin_user' "admin")
@@ -174,20 +191,7 @@ install_wp() {
     noroot wp plugin delete hello
   fi
 
-  INSTALL_TEST_CONTENT=$(get_config_value 'install_test_content' "")
-  if [ ! -z "${INSTALL_TEST_CONTENT}" ]; then
-    echo " * Downloading test content from github.com/poststatus/wptest/master/wptest.xml"
-    curl -s https://raw.githubusercontent.com/poststatus/wptest/master/wptest.xml > import.xml
-    echo " * Installing the wordpress-importer"
-    noroot wp plugin install wordpress-importer
-    echo " * Activating the wordpress-importer"
-    noroot wp plugin activate wordpress-importer
-    echo " * Importing test data"
-    noroot wp import import.xml --authors=create
-    echo " * Cleaning up import.xml"
-    rm import.xml
-    echo " * Test content installed"
-  fi
+  maybe_install_test_content
 }
 
 update_wp() {
@@ -202,17 +206,13 @@ update_wp() {
 
 setup_cli() {
   rm -f "${VVV_PATH_TO_SITE}/wp-cli.yml"
+  echo "# auto-generated file" > "${VVV_PATH_TO_SITE}/wp-cli.yml"
   if [ ! -z "${PUBLIC_DIR}" ]; then
-    echo "path: \"${PUBLIC_DIR}\"" > "${VVV_PATH_TO_SITE}/wp-cli.yml"
+    echo "path: \"${PUBLIC_DIR}\"" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
   else
-    echo "path: \"public_html\"" > "${VVV_PATH_TO_SITE}/wp-cli.yml"
+    echo "path: \"public_html\"" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
   fi
-  
-
-  cat <<EOF > "${PUBLIC_DIR_PATH}/wp-cli.yml"
-ssh: vagrant@vvv.test
-path: ${VVV_PATH_TO_SITE}
-EOF
+  echo "ssh: vagrant@${DOMAIN}" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
 }
 
 cd "${VVV_PATH_TO_SITE}"
