@@ -191,7 +191,7 @@ install_wp() {
     noroot wp plugin delete hello
   fi
 
-  maybe_install_test_content
+  maybe_import_test_content
 }
 
 update_wp() {
