@@ -207,6 +207,12 @@ setup_cli() {
   else
     echo "path: \"public_html\"" > "${VVV_PATH_TO_SITE}/wp-cli.yml"
   fi
+  
+
+  cat <<EOF > "${PUBLIC_DIR_PATH}/wp-cli.yml"
+ssh: vagrant@vvv.test
+path: ${VVV_PATH_TO_SITE}
+EOF
 }
 
 cd "${VVV_PATH_TO_SITE}"
@@ -240,11 +246,6 @@ else
   else
     update_wp
   fi
-  cat <<EOF > "${PUBLIC_DIR_PATH}/wp-cli.yml"
-@${VVV_SITE_NAME}:
-  ssh: vagrant@vvv.test
-  path: ${VVV_PATH_TO_SITE}
-EOF
 fi
 
 copy_nginx_configs
