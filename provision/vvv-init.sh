@@ -212,7 +212,6 @@ setup_cli_before() {
   else
     echo "path: \"public_html\"" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
   fi
-  echo "ssh: vagrant@${DOMAIN}" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
 }
 
 setup_cli_after() {
