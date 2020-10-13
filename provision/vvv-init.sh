@@ -204,7 +204,8 @@ update_wp() {
   fi
 }
 
-setup_cli() {
+setup_cli_before() {
+  rm -f "${VVV_PATH_TO_SITE}/wp-cli.yml"
   echo "# auto-generated file" > "${VVV_PATH_TO_SITE}/wp-cli.yml"
   if [ ! -z "${PUBLIC_DIR}" ]; then
     echo "path: \"${PUBLIC_DIR}\"" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
@@ -214,9 +215,13 @@ setup_cli() {
   echo "ssh: vagrant@${DOMAIN}" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
 }
 
-cd "${VVV_PATH_TO_SITE}"
-rm -f "${VVV_PATH_TO_SITE}/wp-cli.yml"
+setup_cli_after() {
+  echo "ssh: vagrant@${DOMAIN}" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
+}
 
+cd "${VVV_PATH_TO_SITE}"
+
+setup_cli_before
 setup_database
 setup_nginx_folders
 
@@ -251,6 +256,6 @@ copy_nginx_configs
 setup_wp_config_constants
 install_plugins
 install_themes
-setup_cli
+setup_cli_after
 
 echo " * Site Template provisioner script completed for ${VVV_SITE_NAME}"
