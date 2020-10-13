@@ -205,7 +205,6 @@ update_wp() {
 }
 
 setup_cli() {
-  rm -f "${VVV_PATH_TO_SITE}/wp-cli.yml"
   echo "# auto-generated file" > "${VVV_PATH_TO_SITE}/wp-cli.yml"
   if [ ! -z "${PUBLIC_DIR}" ]; then
     echo "path: \"${PUBLIC_DIR}\"" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
@@ -216,8 +215,8 @@ setup_cli() {
 }
 
 cd "${VVV_PATH_TO_SITE}"
+rm -f "${VVV_PATH_TO_SITE}/wp-cli.yml"
 
-setup_cli
 setup_database
 setup_nginx_folders
 
@@ -252,5 +251,6 @@ copy_nginx_configs
 setup_wp_config_constants
 install_plugins
 install_themes
+setup_cli
 
 echo " * Site Template provisioner script completed for ${VVV_SITE_NAME}"
