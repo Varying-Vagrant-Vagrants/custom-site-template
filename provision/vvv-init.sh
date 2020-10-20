@@ -207,12 +207,10 @@ update_wp() {
 setup_cli() {
   rm -f "${VVV_PATH_TO_SITE}/wp-cli.yml"
   echo "# auto-generated file" > "${VVV_PATH_TO_SITE}/wp-cli.yml"
-  if [ ! -z "${PUBLIC_DIR}" ]; then
-    echo "path: \"${PUBLIC_DIR}\"" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
-  else
-    echo "path: \"public_html\"" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
-  fi
-  #echo "ssh: vagrant@${DOMAIN}" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
+  echo "path: \"${PUBLIC_DIR}\"" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
+  echo "@vvv:" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
+  echo "  ssh: vagrant@${DOMAIN}" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
+  echo "  path: ${PUBLIC_DIR_PATH}" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
 }
 
 cd "${VVV_PATH_TO_SITE}"
