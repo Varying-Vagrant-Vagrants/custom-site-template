@@ -17,6 +17,7 @@ The supported environments are:
 - A single site
 - A subdomain multisite
 - A subdirectory multisite
+- A blank folder for manual installation
 
 The Nginx configuration for this site can be overriden by creating a `provision/vvv-nginx-custom.conf`.
 
@@ -46,11 +47,13 @@ The Nginx configuration for this site can be overriden by creating a `provision/
 
 ### The Minimum Required Configuration
 
+A standard WordPress site:
+
 ```yaml
-my-site:
-  repo: https://github.com/Varying-Vagrant-Vagrants/custom-site-template
-  hosts:
-    - my-site.test
+  my-site:
+    repo: https://github.com/Varying-Vagrant-Vagrants/custom-site-template
+    hosts:
+      - my-site.test
 ```
 
 | Setting    | Value        |
@@ -64,12 +67,12 @@ my-site:
 ### Minimal configuration with custom domain and WordPress Nightly
 
 ```yaml
-my-site:
-  repo: https://github.com/Varying-Vagrant-Vagrants/custom-site-template
-  hosts:
-    - foo.test
-  custom:
-    wp_version: nightly
+  my-site:
+    repo: https://github.com/Varying-Vagrant-Vagrants/custom-site-template
+    hosts:
+      - foo.test
+    custom:
+      wp_version: nightly
 ```
 
 | Setting    | Value       |
@@ -80,19 +83,88 @@ my-site:
 | Site Type  | Single      |
 | WP Version | Nightly     |
 
+### VIP Go WordPress Installation
+
+Replace the VIP Go skeleton URL with your client repository then reprovision, the `folders:` parameter requires VVV 3.5+ to use.
+
+```yaml
+  vip:
+    repo: https://github.com/Varying-Vagrant-Vagrants/custom-site-template.git
+    hosts:
+      - vip.test
+    folders:
+      # VIP Site repo
+      public_html/wp-content/:
+        git:
+          repo: https://github.com/Automattic/vip-go-skeleton.git
+          overwrite_on_clone: true
+      # VIP Go MU Plugins
+      public_html/wp-content/mu-plugins:
+        git:
+          repo: https://github.com/Automattic/vip-go-mu-plugins.git
+          overwrite_on_clone: true
+          hard_reset: true
+          pull: true
+```
+
+| Setting    | Value       |
+|------------|-------------|
+| Domain     | vip.test    |
+| Site Title | vip.test    |
+| DB Name    | vip         |
+
+### Manual WordPress Installation
+
+Useful for when you already have a WordPress install you want to copy into place, or if you want to use a non-WordPress setup.
+
+```yaml
+  my-site:
+    repo: https://github.com/Varying-Vagrant-Vagrants/custom-site-template
+    hosts:
+      - foo.test
+    custom:
+      wp_type: none
+```
+
+| Setting    | Value       |
+|------------|-------------|
+| Domain     | foo.test    |
+| Site Title | foo.test    |
+| DB Name    | my-site     |
+| Site Type  | none        |
+
+### Drupal and other CMS Installation
+
+A `provision/vvv-nginx-custom.conf` will be need for custom routing to work if it doesn't already. Once the site is provisioned, open the folder and install Drupal or another CMS into the `public_html` folder.
+
+```yaml
+  drupal-site:
+    repo: https://github.com/Varying-Vagrant-Vagrants/custom-site-template
+    hosts:
+      - drupal.test
+    custom:
+      wp_type: none
+```
+
+| Setting    | Value       |
+|------------|-------------|
+| Domain     | drupal.test |
+| DB Name    | my-site     |
+| Site Type  | none        |
+
 ### WordPress Multisite with Subdomains
 
 ```yaml
-my-site:
-  repo: https://github.com/Varying-Vagrant-Vagrants/custom-site-template
-  hosts:
-    - multisite.test
-    - site1.multisite.test
-    - site2.multisite.test
-  custom:
-    wp_type: subdomain
-
+  my-site:
+    repo: https://github.com/Varying-Vagrant-Vagrants/custom-site-template
+    hosts:
+      - multisite.test
+      - site1.multisite.test
+      - site2.multisite.test
+    custom:
+      wp_type: subdomain
 ```
+
 | Setting    | Value               |
 |------------|---------------------|
 | Domain     | multisite.test      |
@@ -103,12 +175,12 @@ my-site:
 ### WordPress Multisite with Subdirectory
 
 ```yaml
-my-site:
-  repo: https://github.com/Varying-Vagrant-Vagrants/custom-site-template
-  hosts:
-    - multisite.test
-  custom:
-    wp_type: subdirectory
+  my-site:
+    repo: https://github.com/Varying-Vagrant-Vagrants/custom-site-template
+    hosts:
+      - multisite.test
+    custom:
+      wp_type: subdirectory
 ```
 
 | Setting    | Value                  |
@@ -156,14 +228,14 @@ custom:
 ```
 Defines the type of install you are creating. Valid values are:
 
-- single
-- subdomain
-- subdirectory
-- none
+- `single`
+- `subdomain`
+- `subdirectory`
+- `none`
 
 ```yaml
 custom:
-    db_name: super_secet_db_name
+    db_name: super_secret_db_name
 ```
 
 Defines the DB name for the installation.
