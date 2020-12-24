@@ -44,7 +44,7 @@ install_plugins() {
   if [ ! -z "${WP_PLUGINS}" ]; then
     isurl='(https?|ftp|file)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
     for plugin in ${WP_PLUGINS//- /$'\n'}; do
-      if [[ "${plugin}" =~ $regex ]]; then
+      if [[ "${plugin}" =~ $isurl ]]; then
         if noroot wp plugin is-installed "${plugin}"; then
           echo " * The ${plugin} plugin is already installed."
         else
@@ -63,7 +63,7 @@ install_themes() {
   if [ ! -z "${WP_THEMES}" ]; then
       isurl='(https?|ftp|file)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
       for theme in ${WP_THEMES//- /$'\n'}; do
-        if [[ "${plugin}" =~ $regex ]]; then
+        if [[ "${theme}" =~ $isurl ]]; then
           if noroot wp theme is-installed "${theme}"; then
             echo " * The ${theme} theme is already installed."
           else
