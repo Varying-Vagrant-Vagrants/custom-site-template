@@ -42,12 +42,17 @@ setup_nginx_folders() {
 install_plugins() {
   WP_PLUGINS=$(get_config_value 'install_plugins' '')
   if [ ! -z "${WP_PLUGINS}" ]; then
+    isurl='(https?|ftp|file)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
     for plugin in ${WP_PLUGINS//- /$'\n'}; do
-      if [ ! $(noroot wp plugin is-installed "${plugin}") ]; then
-        echo " * Installing and activating plugin: '${plugin}'"
-        noroot wp plugin install "${plugin}" --activate
+      if [[ "${plugin}" =~ $regex ]]; then
+        if noroot wp plugin is-installed "${plugin}"; then
+          echo " * The ${plugin} plugin is already installed."
+        else
+          echo " * Installing and activating plugin: '${plugin}'"
+          noroot wp plugin install "${plugin}" --activate
+        fi
       else
-        echo " * The ${plugin} plugin is already installed."
+        noroot wp plugin install "${plugin}" --activate
       fi
     done
   fi
@@ -56,12 +61,17 @@ install_plugins() {
 install_themes() {
   WP_THEMES=$(get_config_value 'install_themes' '')
   if [ ! -z "${WP_THEMES}" ]; then
+      isurl='(https?|ftp|file)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
       for theme in ${WP_THEMES//- /$'\n'}; do
-        if [ ! $(noroot wp theme is-installed "${theme}") ]; then
-          echo " * Installing theme: '${theme}'"
-          noroot wp theme install "${theme}"
+        if [[ "${plugin}" =~ $regex ]]; then
+          if noroot wp theme is-installed "${theme}"; then
+            echo " * The ${theme} theme is already installed."
+          else
+            echo " * Installing theme: '${theme}'"
+            noroot wp theme install "${theme}"
+          fi
         else
-          echo " * The ${theme} theme is already installed."
+          noroot wp theme install "${theme}"
         fi
       done
   fi
