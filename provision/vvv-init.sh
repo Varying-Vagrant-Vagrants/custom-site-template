@@ -52,7 +52,8 @@ install_plugins() {
           noroot wp plugin install "${plugin}" --activate
         fi
       else
-        noroot wp plugin install "${plugin}" --activate
+        echo " ! Warning, a URL was found for this plugin, attempting install and activate with --force set for ${plugin}"
+        noroot wp plugin install "${plugin}" --activate --force
       fi
     done
   fi
@@ -71,7 +72,8 @@ install_themes() {
             noroot wp theme install "${theme}"
           fi
         else
-          noroot wp theme install "${theme}"
+          echo " ! Warning, a URL was found for this theme, attempting install of ${theme} with --force set"
+          noroot wp theme install --force "${theme}"
         fi
       done
   fi
