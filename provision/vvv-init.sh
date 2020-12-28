@@ -45,15 +45,15 @@ install_plugins() {
     isurl='(https?|ftp|file)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
     for plugin in ${WP_PLUGINS//- /$'\n'}; do
       if [[ "${plugin}" =~ $isurl ]]; then
+        echo " ! Warning, a URL was found for this plugin, attempting install and activate with --force set for ${plugin}"
+        noroot wp plugin install "${plugin}" --activate --force
+      else
         if noroot wp plugin is-installed "${plugin}"; then
           echo " * The ${plugin} plugin is already installed."
         else
           echo " * Installing and activating plugin: '${plugin}'"
           noroot wp plugin install "${plugin}" --activate
         fi
-      else
-        echo " ! Warning, a URL was found for this plugin, attempting install and activate with --force set for ${plugin}"
-        noroot wp plugin install "${plugin}" --activate --force
       fi
     done
   fi
@@ -65,15 +65,15 @@ install_themes() {
       isurl='(https?|ftp|file)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
       for theme in ${WP_THEMES//- /$'\n'}; do
         if [[ "${theme}" =~ $isurl ]]; then
+          echo " ! Warning, a URL was found for this theme, attempting install of ${theme} with --force set"
+          noroot wp theme install --force "${theme}"
+        else
           if noroot wp theme is-installed "${theme}"; then
             echo " * The ${theme} theme is already installed."
           else
             echo " * Installing theme: '${theme}'"
             noroot wp theme install "${theme}"
           fi
-        else
-          echo " ! Warning, a URL was found for this theme, attempting install of ${theme} with --force set"
-          noroot wp theme install --force "${theme}"
         fi
       done
   fi
