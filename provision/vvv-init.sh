@@ -221,10 +221,10 @@ setup_cli() {
   echo "# auto-generated file" > "${VVV_PATH_TO_SITE}/wp-cli.yml"
   echo "path: \"${PUBLIC_DIR}\"" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
   echo "@vvv:" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
-  echo "  ssh: vagrant@${DOMAIN}" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
+  echo "  ssh: vagrant" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
   echo "  path: ${PUBLIC_DIR_PATH}" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
   echo "@${VVV_SITE_NAME}:" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
-  echo "  ssh: vagrant@${DOMAIN}" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
+  echo "  ssh: vagrant" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
   echo "  path: ${PUBLIC_DIR_PATH}" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
 }
 
