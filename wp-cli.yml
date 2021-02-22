@@ -1,0 +1,8 @@
+# auto-generated file
+path: "public_html"
+@vvv:
+  ssh: vagrant
+  path: /srv/www/wordpress-one/public_html
+@wordpress-one:
+  ssh: vagrant
+  path: /srv/www/wordpress-one/public_html
