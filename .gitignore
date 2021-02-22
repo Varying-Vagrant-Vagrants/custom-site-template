@@ -12,6 +12,5 @@
 # But don't ignore these files that VVV needs
 !.gitignore
 !README.md
-!wp-cli.yml
 !/provision/vvv-init.sh
 !/provision/vvv-nginx-default.conf
