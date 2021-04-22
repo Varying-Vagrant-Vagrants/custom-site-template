@@ -1,6 +1,9 @@
 # DANGER!!!
 # This repo is not for your website!
 # You should never commit files from your site here!!!
+# If you want to usee git, changee into `public_html` and clone a repo into that folder, or use git init
+# If you do use this repo, everything you commit will be undone, VVV always resets site provisioner repos to the remote version
+
 # So Ignore everything
 *
 # And explicitly extra ignore public_html
