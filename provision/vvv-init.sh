@@ -169,7 +169,7 @@ maybe_import_test_content() {
     echo " * Activating the wordpress-importer"
     noroot wp plugin activate wordpress-importer
     echo " * Importing test data"
-    noroot wp import import.xml --authors=create
+    noroot wp import /tmp/import.xml --authors=create
     echo " * Cleaning up import.xml"
     rm /tmp/import.xml
     echo " * Test content installed"
