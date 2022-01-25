@@ -42,7 +42,8 @@ The Nginx configuration for this site can be overriden by creating a `provision/
 | `install_themes`         |                            | A list/array of themes to install. Similar to the hosts array. These values are passed to the WP CLI plugin install command and take the same format.                                                                                                                              |
 | `site_title`             | The first host of the site | The main name/title of the site, defaults to `sitename.test`                                                                                                                                                                                                                       |
 | `wp_type`                | `single`                   |  - `single` will create a standard WP install<br> - `subdomain` will create a subdomain multisite<br> - `subdirectory` will create a subdirectory multisite<br> - `none` will skip installing WordPress, and let you install WordPress manually (useful for custom folder layouts) |
-| `wp_version`             | `latest`                   | The version of WordPress to install if no installation is present                                                                                                                                                                                                                  |
+| `wp_version`             | `latest`                   | The version of WordPress to install if no installation is present    |
+| `wpconfig_constants`     |                            | A list/array of constants with their value to add to the wp-config.php   |
 
 
 ## Examples
