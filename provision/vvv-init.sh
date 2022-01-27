@@ -153,7 +153,7 @@ download_wordpress() {
 
 initial_wpconfig() {
   echo " * Setting up wp-config.php"
-  noroot wp core config --dbname="${DB_NAME}" --dbprefix="${DB_PREFIX}" --dbuser=wp --dbpass=wp
+  noroot wp config create --dbname="${DB_NAME}" --dbprefix="${DB_PREFIX}" --dbuser=wp --dbpass=wp
   noroot wp config set WP_DEBUG true --raw
   noroot wp config set SCRIPT_DEBUG true --raw
 }
