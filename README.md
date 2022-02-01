@@ -21,7 +21,9 @@ The supported environments are:
 - A subdirectory multisite
 - A blank folder for manual installation
 
-The Nginx configuration for this site can be overriden by creating a `provision/vvv-nginx-custom.conf`.
+## Custom Nginx configs
+
+The Nginx configuration for this site can be overriden by creating a `provision/vvv-nginx-custom.conf` file. Copy the `provision/vvv-nginx-default.conf` file and make modifications, then reprovision, and VVV will use your `vvv-nginx-custom.conf` instead as the template.
 
 ## Configuration Options
 
