@@ -8,6 +8,7 @@ _Note that this repository is not a place to put your website. Create a new git 
 
  - [Overview](#overview)
  - [Configuration Options](#configuration-options)
+ - [Custom Nginx configs](#custom-nginx-configs)
  - [Examples](#examples)
 
 ## Overview
@@ -24,6 +25,8 @@ The supported environments are:
 ## Custom Nginx configs
 
 The Nginx configuration for this site can be overriden by creating a `provision/vvv-nginx-custom.conf` file. Copy the `provision/vvv-nginx-default.conf` file and make modifications, then reprovision, and VVV will use your `vvv-nginx-custom.conf` instead as the template.
+
+Note that if you make a mistake VVV may fail to provision, this normally happens when restarting Nginx. Make sure you test your configs, `vagrant ssh` followed by `sudo nginx -t` will validate the config file for basic errors. You may also see the default VVV error pages if your config file is valid but set up incorrectly. Also be sure to preserve the placeholders VVV uses so that features such as SSL certificates and the `nginx_upstream` parameter and others continue to work.
 
 ## Configuration Options
 
