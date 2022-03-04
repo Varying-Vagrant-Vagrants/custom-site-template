@@ -15,6 +15,7 @@ SITE_TITLE=$(get_config_value 'site_title' "${DOMAIN}")
 WP_LOCALE=$(get_config_value 'locale' 'en_US')
 WP_TYPE=$(get_config_value 'wp_type' "single")
 WP_VERSION=$(get_config_value 'wp_version' 'latest')
+PHP_VERSION=$(get_config_value 'php' "${VVV_BASE_PHPVERSION}")
 
 PUBLIC_DIR_PATH="${VVV_PATH_TO_SITE}"
 if [ ! -z "${PUBLIC_DIR}" ]; then
@@ -46,13 +47,13 @@ install_plugins() {
     for plugin in ${WP_PLUGINS//- /$'\n'}; do
       if [[ "${plugin}" =~ $isurl ]]; then
         echo " ! Warning, a URL was found for this plugin, attempting install and activate with --force set for ${plugin}"
-        noroot wp plugin install "${plugin}" --activate --force
+        noroot "${PHP_VERSION}" wp plugin install "${plugin}" --activate --force
       else
-        if noroot wp plugin is-installed "${plugin}"; then
+        if noroot "${PHP_VERSION}" wp plugin is-installed "${plugin}"; then
           echo " * The ${plugin} plugin is already installed."
         else
           echo " * Installing and activating plugin: '${plugin}'"
-          noroot wp plugin install "${plugin}" --activate
+          noroot "${PHP_VERSION}" wp plugin install "${plugin}" --activate
         fi
       fi
     done
@@ -66,13 +67,13 @@ install_themes() {
       for theme in ${WP_THEMES//- /$'\n'}; do
         if [[ "${theme}" =~ $isurl ]]; then
           echo " ! Warning, a URL was found for this theme, attempting install of ${theme} with --force set"
-          noroot wp theme install --force "${theme}"
+          noroot "${PHP_VERSION}" wp theme install --force "${theme}"
         else
-          if noroot wp theme is-installed "${theme}"; then
+          if noroot "${PHP_VERSION}" wp theme is-installed "${theme}"; then
             echo " * The ${theme} theme is already installed."
           else
             echo " * Installing theme: '${theme}'"
-            noroot wp theme install "${theme}"
+            noroot "${PHP_VERSION}" wp theme install "${theme}"
           fi
         fi
       done
@@ -126,9 +127,9 @@ setup_wp_config_constants(){
       lower_value=$(echo "${value}" | awk '{print tolower($0)}')
       echo " * Adding constant '${key}' with value '${value}' to wp-config.php"
       if [ "${lower_value}" == "true" ] || [ "${lower_value}" == "false" ] || [[ "${lower_value}" =~ ^[+-]?[0-9]*$ ]] || [[ "${lower_value}" =~ ^[+-]?[0-9]+\.?[0-9]*$ ]]; then
-        noroot wp config set "${key}" "${value}" --raw
+        noroot "${PHP_VERSION}" wp config set "${key}" "${value}" --raw
       else
-        noroot wp config set "${key}" "${value}"
+        noroot "${PHP_VERSION}" wp config set "${key}" "${value}"
       fi
   done
   set -e
@@ -136,26 +137,26 @@ setup_wp_config_constants(){
 
 restore_db_backup() {
   echo " * Found a database backup at ${1}. Restoring the site"
-  noroot wp config set DB_USER "wp"
-  noroot wp config set DB_PASSWORD "wp"
-  noroot wp config set DB_HOST "localhost"
-  noroot wp config set DB_NAME "${DB_NAME}"
-  noroot wp config set table_prefix "${DB_PREFIX}"
-  noroot wp db import "${1}"
+  noroot "${PHP_VERSION}" wp config set DB_USER "wp"
+  noroot "${PHP_VERSION}" wp config set DB_PASSWORD "wp"
+  noroot "${PHP_VERSION}" wp config set DB_HOST "localhost"
+  noroot "${PHP_VERSION}" wp config set DB_NAME "${DB_NAME}"
+  noroot "${PHP_VERSION}" wp config set table_prefix "${DB_PREFIX}"
+  noroot "${PHP_VERSION}" wp db import "${1}"
   echo " * Installed database backup"
 }
 
 download_wordpress() {
   # Install and configure the latest stable version of WordPress
   echo " * Downloading WordPress version '${1}' locale: '${2}'"
-  noroot wp core download --locale="${2}" --version="${1}"
+  noroot "${PHP_VERSION}" wp core download --locale="${2}" --version="${1}"
 }
 
 initial_wpconfig() {
   echo " * Setting up wp-config.php"
-  noroot wp config create --dbname="${DB_NAME}" --dbprefix="${DB_PREFIX}" --dbuser=wp --dbpass=wp
-  noroot wp config set WP_DEBUG true --raw
-  noroot wp config set SCRIPT_DEBUG true --raw
+  noroot "${PHP_VERSION}" wp config create --dbname="${DB_NAME}" --dbprefix="${DB_PREFIX}" --dbuser=wp --dbpass=wp
+  noroot "${PHP_VERSION}" wp config set WP_DEBUG true --raw
+  noroot "${PHP_VERSION}" wp config set SCRIPT_DEBUG true --raw
 }
 
 maybe_import_test_content() {
@@ -164,11 +165,11 @@ maybe_import_test_content() {
     echo " * Downloading test content from github.com/poststatus/wptest/master/wptest.xml"
     noroot curl -s https://raw.githubusercontent.com/poststatus/wptest/master/wptest.xml > /tmp/import.xml
     echo " * Installing the wordpress-importer"
-    noroot wp plugin install wordpress-importer
+    noroot "${PHP_VERSION}" wp plugin install wordpress-importer
     echo " * Activating the wordpress-importer"
-    noroot wp plugin activate wordpress-importer
+    noroot "${PHP_VERSION}" wp plugin activate wordpress-importer
     echo " * Importing test data"
-    noroot wp import /tmp/import.xml --authors=create
+    noroot "${PHP_VERSION}" wp import /tmp/import.xml --authors=create
     echo " * Cleaning up import.xml"
     rm /tmp/import.xml
     echo " * Test content installed"
@@ -182,36 +183,36 @@ install_wp() {
   ADMIN_EMAIL=$(get_config_value 'admin_email' "admin@local.test")
 
   echo " * Installing using wp core install --url=\"${DOMAIN}\" --title=\"${SITE_TITLE}\" --admin_name=\"${ADMIN_USER}\" --admin_email=\"${ADMIN_EMAIL}\" --admin_password=\"${ADMIN_PASSWORD}\""
-  noroot wp core install --url="${DOMAIN}" --title="${SITE_TITLE}" --admin_name="${ADMIN_USER}" --admin_email="${ADMIN_EMAIL}" --admin_password="${ADMIN_PASSWORD}"
+  noroot "${PHP_VERSION}" wp core install --url="${DOMAIN}" --title="${SITE_TITLE}" --admin_name="${ADMIN_USER}" --admin_email="${ADMIN_EMAIL}" --admin_password="${ADMIN_PASSWORD}"
   echo " * WordPress was installed, with the username '${ADMIN_USER}', and the password '${ADMIN_PASSWORD}' at '${ADMIN_EMAIL}'"
 
   if [ "${WP_TYPE}" = "subdomain" ]; then
     echo " * Running Multisite install using wp core multisite-install --subdomains --url=\"${DOMAIN}\" --title=\"${SITE_TITLE}\" --admin_name=\"${ADMIN_USER}\" --admin_email=\"${ADMIN_EMAIL}\" --admin_password=\"${ADMIN_PASSWORD}\""
-    noroot wp core multisite-install --subdomains --url="${DOMAIN}" --title="${SITE_TITLE}" --admin_name="${ADMIN_USER}" --admin_email="${ADMIN_EMAIL}" --admin_password="${ADMIN_PASSWORD}"
+    noroot "${PHP_VERSION}" wp core multisite-install --subdomains --url="${DOMAIN}" --title="${SITE_TITLE}" --admin_name="${ADMIN_USER}" --admin_email="${ADMIN_EMAIL}" --admin_password="${ADMIN_PASSWORD}"
     echo " * Multisite install complete"
   elif [ "${WP_TYPE}" = "subdirectory" ]; then
     echo " * Running Multisite install using wp core ${INSTALL_COMMAND} --url=\"${DOMAIN}\" --title=\"${SITE_TITLE}\" --admin_name=\"${ADMIN_USER}\" --admin_email=\"${ADMIN_EMAIL}\" --admin_password=\"${ADMIN_PASSWORD}\""
-    noroot wp core multisite-install --url="${DOMAIN}" --title="${SITE_TITLE}" --admin_name="${ADMIN_USER}" --admin_email="${ADMIN_EMAIL}" --admin_password="${ADMIN_PASSWORD}"
+    noroot "${PHP_VERSION}" wp core multisite-install --url="${DOMAIN}" --title="${SITE_TITLE}" --admin_name="${ADMIN_USER}" --admin_email="${ADMIN_EMAIL}" --admin_password="${ADMIN_PASSWORD}"
     echo " * Multisite install complete"
   fi
 
   DELETE_DEFAULT_PLUGINS=$(get_config_value 'delete_default_plugins' '')
   if [ ! -z "${DELETE_DEFAULT_PLUGINS}" ]; then
     echo " * Deleting the default plugins akismet and hello dolly"
-    noroot wp plugin delete akismet
-    noroot wp plugin delete hello
+    noroot "${PHP_VERSION}" wp plugin delete akismet
+    noroot "${PHP_VERSION}" wp plugin delete hello
   fi
 
   maybe_import_test_content
 }
 
 update_wp() {
-  if [[ $(noroot wp core version) > "${WP_VERSION}" ]]; then
+  if [[ $(noroot "${PHP_VERSION}" wp core version) > "${WP_VERSION}" ]]; then
     echo " * Installing an older version '${WP_VERSION}' of WordPress"
-    noroot wp core update --version="${WP_VERSION}" --force
+    noroot "${PHP_VERSION}" wp core update --version="${WP_VERSION}" --force
   else
     echo " * Updating WordPress '${WP_VERSION}'"
-    noroot wp core update --version="${WP_VERSION}"
+    noroot "${PHP_VERSION}" wp core update --version="${WP_VERSION}"
   fi
 }
 
@@ -246,7 +247,7 @@ else
     initial_wpconfig
   fi
 
-  if ! $(noroot wp core is-installed ); then
+  if ! $(noroot "${PHP_VERSION}" wp core is-installed); then
     echo " * WordPress is present but isn't installed to the database, checking for SQL dumps in wp-content/database.sql or the main backup folder."
     if [ -f "${PUBLIC_DIR_PATH}/wp-content/database.sql" ]; then
       restore_db_backup "${PUBLIC_DIR_PATH}/wp-content/database.sql"

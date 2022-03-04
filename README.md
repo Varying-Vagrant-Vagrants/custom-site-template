@@ -49,6 +49,8 @@ Note that if you make a mistake VVV may fail to provision, this normally happens
 | `wp_type`                | `single`                   |  - `single` will create a standard WP install<br> - `subdomain` will create a subdomain multisite<br> - `subdirectory` will create a subdirectory multisite<br> - `none` will skip installing WordPress, and let you install WordPress manually (useful for custom folder layouts) |
 | `wp_version`             | `latest`                   | The version of WordPress to install if no installation is present    |
 | `wpconfig_constants`     |                            | A list/array of constants with their value to add to the wp-config.php   |
+| `php`                    | `php7.4`                    | Define the PHP version to use for the provisioner otherwise will use the VVV default |
+| `nginx_upstream          | `php74`                    | Define the PHP version to use for Nginx otherwise will use the VVV default  |
 
 
 ## Examples
