@@ -9,6 +9,7 @@ _Note that this repository is not a place to put your website. Create a new git 
  - [Overview](#overview)
  - [Custom Configuration Options](#custom-configuration-options)
  - [Custom Nginx configs](#custom-nginx-configs)
+ - [Using Git for your site](#using-git-for-your-site)
  - [Examples](#examples)
 
 ## Overview
@@ -65,6 +66,10 @@ Note that if you make a mistake VVV may fail to provision, this normally happens
 Note that VVV will search and replace identifiers in brackets such as `{vvv_tls_key}`, and if these are removed then functionality from `config.yml` or SSL certificates may stop working. Some identifiers are implemented using `provision/provision.sh` in the custom site template, and will have double brackets, e.g. `{{LIVE_URL}}`.
 
 If you are looking to rename the `public_html` folder, you should use the `public_dir` parameter in `config.yml` instead of a custom Nginx config file.
+
+## Using Git for Your Site
+
+If you want to manage your site using `git`, you can do that inside the `public_html` folder. This git repo is just for the site template provisioner, you don't need to fork it. You can also set the `wp_type` to `none` and clone a git repo using the `folders:` feature. You might do this if your host has provided you with a git repository. See the examples below for a WordPress VIP site that uses a site in a git repository.
 
 ## Examples
 
