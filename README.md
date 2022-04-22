@@ -24,7 +24,18 @@ The supported environments are:
 
 ## Custom Configuration Options
 
-These are custom options unique to the custom site template, and go in the `custom:` section of the site in `config.yml`. See the examples further down for a demonstration.
+These are custom options unique to the custom site template, and go in the `custom:` section of the site in `config.yml`. For example here is how to use `wp_version`:
+
+```yaml
+  my-site:
+    repo: https://github.com/Varying-Vagrant-Vagrants/custom-site-template
+    hosts:
+      - foo.test
+    custom:
+      wp_version: nightly
+```
+
+Below is a full list of the custom options this template implements:
 
 | Key                      | Type   | Default                    | Description                                                                                                                                                                                                                                                           |
 |--------------------------|--------|----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
