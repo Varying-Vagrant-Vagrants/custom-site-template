@@ -43,7 +43,7 @@ if [ "$(type -t 'vvv_search_replace_in_file')" != 'function' ]; then
     local content
     if [[ -f "${file}" ]]; then
       content=$(<"${file}")
-      vvv_site_template_search_replace "${content}" "${2}" "${3}"
+      vvv_search_replace "${content}" "${2}" "${3}"
     else
       return 1
     fi
@@ -120,7 +120,7 @@ copy_nginx_configs() {
 
   echo " * Applying public dir setting to Nginx config"
   local nginxfile
-  nginxfile=$(vvv_site_template_search_replace_in_file "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf" "{vvv_public_dir}" "${PUBLIC_DIR}")
+  nginxfile=$(vvv_search_replace_in_file "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf" "{vvv_public_dir}" "${PUBLIC_DIR}")
 
   LIVE_URL=$(get_config_value 'live_url' '')
   if [ ! -z "$LIVE_URL" ]; then
