@@ -21,35 +21,6 @@ if [ ! -z "${PUBLIC_DIR}" ]; then
   PUBLIC_DIR_PATH="${PUBLIC_DIR_PATH}/${PUBLIC_DIR}"
 fi
 
-if [ "$(type -t 'vvv_search_replace')" != 'function' ]; then
-  # Takes a string and replaces all instances of a token with a value
-  vvv_search_replace() {
-    local content="$1"
-    local token="$2"
-    local value="$3"
-
-    # Read the file contents and replace the token with the value
-    content=${content//$token/$value}
-    echo "${content}"
-  }
-fi
-
-if [ "$(type -t 'vvv_search_replace_in_file')" != 'function' ]; then
-  # Takes a file, and replaces all instances of a token with a value
-  vvv_search_replace_in_file() {
-    local file="$1"
-
-    # Read the file contents and replace the token with the value
-    local content
-    if [[ -f "${file}" ]]; then
-      content=$(<"${file}")
-      vvv_search_replace "${content}" "${2}" "${3}"
-    else
-      return 1
-    fi
-  }
-fi
-
 # Make a database, if we don't already have one
 setup_database() {
   echo -e " * Creating database '${DB_NAME}' (if it's not already there)"
@@ -117,10 +88,9 @@ copy_nginx_configs() {
     echo " * Using the default vvv-nginx-default.conf, to customize, create a vvv-nginx-custom.conf"
     noroot cp -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx-default.conf" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
   fi
-
+  
   echo " * Applying public dir setting to Nginx config"
-  local nginxfile
-  nginxfile=$(vvv_search_replace_in_file "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf" "{vvv_public_dir}" "${PUBLIC_DIR}")
+  noroot sed -i "s#{vvv_public_dir}#/${PUBLIC_DIR}#" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
 
   LIVE_URL=$(get_config_value 'live_url' '')
   if [ ! -z "$LIVE_URL" ]; then
@@ -142,12 +112,10 @@ END_HEREDOC
     sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/\\n\\1/g'
     )
 
-    nginxfile=$(vvv_search_replace "${nginxfile}" "{{LIVE_URL}}" "${redirect_config}")
+    noroot sed -i -e "s|\(.*\){{LIVE_URL}}|\1${redirect_config}|" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
   else
-    nginxfile=$(vvv_search_replace "${nginxfile}" "{{LIVE_URL}}" "# Live URL rules appear here when enabled")
+    noroot sed -i "s#{{LIVE_URL}}##" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
   fi
-
-  noroot echo "${nginxfile}" > "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
 }
 
 setup_wp_config_constants(){
