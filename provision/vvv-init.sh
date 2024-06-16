@@ -39,6 +39,33 @@ setup_nginx_folders() {
   noroot mkdir -p "${PUBLIC_DIR_PATH}"
 }
 
+# @description Takes a string and replaces all instances of a token with a value
+function vvv_site_template_search_replace() {
+  local content="$1"
+  local token="$2"
+  local value="$3"
+
+  # Read the file contents and replace the token with the value
+  content=${content//$token/$value}
+  echo "${content}"
+}
+export -f vvv_site_template_search_replace
+
+# @description Takes a file, and replaces all instances of a token with a value
+function vvv_site_template_search_replace_in_file() {
+  local file="$1"
+
+  # Read the file contents and replace the token with the value
+  local content
+  if [[ -f "${file}" ]]; then
+    content=$(<"${file}")
+    vvv_site_template_search_replace "${content}" "${2}" "${3}"
+  else
+    return 1
+  fi
+}
+export -f vvv_site_template_search_replace_in_file
+
 install_plugins() {
   WP_PLUGINS=$(get_config_value 'install_plugins' '')
   if [ ! -z "${WP_PLUGINS}" ]; then
@@ -81,16 +108,16 @@ install_themes() {
 
 copy_nginx_configs() {
   echo " * Copying the sites Nginx config template"
+
+  local NCONFIG
+
   if [ -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx-custom.conf" ]; then
     echo " * A vvv-nginx-custom.conf file was found"
-    noroot cp -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx-custom.conf" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
+    NCONFIG=$(vvv_site_template_search_replace_in_file "${VVV_PATH_TO_SITE}/provision/vvv-nginx-custom.conf" "{vvv_public_dir}" "${PUBLIC_DIR}")
   else
     echo " * Using the default vvv-nginx-default.conf, to customize, create a vvv-nginx-custom.conf"
-    noroot cp -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx-default.conf" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
+    NCONFIG=$(vvv_site_template_search_replace_in_file "${VVV_PATH_TO_SITE}/provision/vvv-nginx-default.conf" "{vvv_public_dir}" "${PUBLIC_DIR}")
   fi
-  
-  echo " * Applying public dir setting to Nginx config"
-  noroot sed -i "s#{vvv_public_dir}#/${PUBLIC_DIR}#" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
 
   LIVE_URL=$(get_config_value 'live_url' '')
   if [ ! -z "$LIVE_URL" ]; then
@@ -112,10 +139,14 @@ END_HEREDOC
     sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/\\n\\1/g'
     )
 
-    noroot sed -i -e "s|\(.*\){{LIVE_URL}}|\1${redirect_config}|" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
+    NCONFIG=$(vvv_site_template_search_replace "${NCONFIG}" "{{LIVE_URL}}" "${redirect_config}")
   else
-    noroot sed -i "s#{{LIVE_URL}}##" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
+    NCONFIG=$(vvv_site_template_search_replace "${NCONFIG}" "{{LIVE_URL}}" "")
   fi
+
+  # Write out the new Nginx file for VVV to pick up.
+  noroot touch  "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
+  echo "${NCONFIG}" > "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
 }
 
 setup_wp_config_constants(){
