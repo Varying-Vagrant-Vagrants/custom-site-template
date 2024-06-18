@@ -134,9 +134,7 @@ if (!-e \$request_filename) {
 }
 END_HEREDOC
 
-    ) |
-    # pipe and escape new lines of the HEREDOC for usage in sed
-    sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/\\n\\1/g'
+    )
     )
 
     NCONFIG=$(vvv_site_template_search_replace "${NCONFIG}" "{{LIVE_URL}}" "${redirect_config}")
