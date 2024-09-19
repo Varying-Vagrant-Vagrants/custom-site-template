@@ -146,7 +146,6 @@ END_HEREDOC
   fi
 
   NCONFIG=$(vvv_site_template_search_replace "${NCONFIG}" "{{PUBLIC_DIR_PATH}}" "${PUBLIC_DIR_PATH}")
-  
 
   # Write out the new Nginx file for VVV to pick up.
   noroot touch  "${VVV_PATH_TO_SITE%/}/provision/vvv-nginx.conf"
@@ -253,7 +252,7 @@ function update_wp() {
 function setup_cli() {
   rm -f "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
   echo "# auto-generated file" > "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
-  echo "path: \"${PUBLIC_DIR}\"" >> "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
+  echo "path: \"${PUBLIC_DIR_PATH}\"" >> "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
   echo "@vvv:" >> "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
   echo "  ssh: vagrant" >> "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
   echo "  path: ${PUBLIC_DIR_PATH}" >> "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
@@ -262,7 +261,7 @@ function setup_cli() {
   echo "  path: ${PUBLIC_DIR_PATH}" >> "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
 }
 
-cd "${VVV_PATH_TO_SITE}"
+cd "${PUBLIC_DIR_PATH}"
 
 setup_cli
 setup_database
