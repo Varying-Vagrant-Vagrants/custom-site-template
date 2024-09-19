@@ -11,18 +11,21 @@ DB_NAME=${DB_NAME//[\\\/\.\<\>\:\"\'\|\?\!\*]/}
 DB_PREFIX=$(get_config_value 'db_prefix' 'wp_')
 DOMAIN=$(get_primary_host "${VVV_SITE_NAME}".test)
 PUBLIC_DIR=$(get_config_value 'public_dir' "public_html")
+if [[ ! "$PUBLIC_DIR" =~ ^"/" ]]; then
+  PUBLIC_DIR="/${PUBLIC_DIR}"
+fi
 SITE_TITLE=$(get_config_value 'site_title' "${DOMAIN}")
 WP_LOCALE=$(get_config_value 'locale' 'en_US')
 WP_TYPE=$(get_config_value 'wp_type' "single")
 WP_VERSION=$(get_config_value 'wp_version' 'latest')
 
-PUBLIC_DIR_PATH="${VVV_PATH_TO_SITE}"
+PUBLIC_DIR_PATH="${VVV_PATH_TO_SITE%/}"
 if [ ! -z "${PUBLIC_DIR}" ]; then
-  PUBLIC_DIR_PATH="${PUBLIC_DIR_PATH}/${PUBLIC_DIR}"
+  PUBLIC_DIR_PATH="${PUBLIC_DIR_PATH}${PUBLIC_DIR}"
 fi
 
-# Make a database, if we don't already have one
-setup_database() {
+# @description Make a database, if we don't already have one
+function setup_database() {
   echo -e " * Creating database '${DB_NAME}' (if it's not already there)"
   mysql -u root --password=root -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`"
   echo -e " * Granting the wp user priviledges to the '${DB_NAME}' database"
@@ -30,11 +33,11 @@ setup_database() {
   echo -e " * DB operations done."
 }
 
-setup_nginx_folders() {
+function setup_nginx_folders() {
   echo " * Setting up the log subfolder for Nginx logs"
-  noroot mkdir -p "${VVV_PATH_TO_SITE}/log"
-  noroot touch "${VVV_PATH_TO_SITE}/log/nginx-error.log"
-  noroot touch "${VVV_PATH_TO_SITE}/log/nginx-access.log"
+  noroot mkdir -p "${VVV_PATH_TO_SITE%/}/log"
+  noroot touch "${VVV_PATH_TO_SITE%/}/log/nginx-error.log"
+  noroot touch "${VVV_PATH_TO_SITE%/}/log/nginx-access.log"
   echo " * Creating the public folder at '${PUBLIC_DIR}' if it doesn't exist already"
   noroot mkdir -p "${PUBLIC_DIR_PATH}"
 }
@@ -66,7 +69,7 @@ function vvv_site_template_search_replace_in_file() {
 }
 export -f vvv_site_template_search_replace_in_file
 
-install_plugins() {
+function install_plugins() {
   WP_PLUGINS=$(get_config_value 'install_plugins' '')
   if [ ! -z "${WP_PLUGINS}" ]; then
     isurl='(https?|ftp|file)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
@@ -86,7 +89,7 @@ install_plugins() {
   fi
 }
 
-install_themes() {
+function install_themes() {
   WP_THEMES=$(get_config_value 'install_themes' '')
   if [ ! -z "${WP_THEMES}" ]; then
       isurl='(https?|ftp|file)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
@@ -106,17 +109,17 @@ install_themes() {
   fi
 }
 
-copy_nginx_configs() {
+function copy_nginx_configs() {
   echo " * Copying the sites Nginx config template"
 
   local NCONFIG
 
-  if [ -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx-custom.conf" ]; then
+  if [ -f "${VVV_PATH_TO_SITE%/}/provision/vvv-nginx-custom.conf" ]; then
     echo " * A vvv-nginx-custom.conf file was found"
-    NCONFIG=$(vvv_site_template_search_replace_in_file "${VVV_PATH_TO_SITE}/provision/vvv-nginx-custom.conf" "{vvv_public_dir}" "${PUBLIC_DIR}")
+    NCONFIG=$(vvv_site_template_search_replace_in_file "${VVV_PATH_TO_SITE%/}/provision/vvv-nginx-custom.conf" "{vvv_public_dir}" "${PUBLIC_DIR}")
   else
     echo " * Using the default vvv-nginx-default.conf, to customize, create a vvv-nginx-custom.conf"
-    NCONFIG=$(vvv_site_template_search_replace_in_file "${VVV_PATH_TO_SITE}/provision/vvv-nginx-default.conf" "{vvv_public_dir}" "${PUBLIC_DIR}")
+    NCONFIG=$(vvv_site_template_search_replace_in_file "${VVV_PATH_TO_SITE%/}/provision/vvv-nginx-default.conf" "{vvv_public_dir}" "${PUBLIC_DIR}")
   fi
 
   LIVE_URL=$(get_config_value 'live_url' '')
@@ -142,12 +145,15 @@ END_HEREDOC
     NCONFIG=$(vvv_site_template_search_replace "${NCONFIG}" "{{LIVE_URL}}" "")
   fi
 
+  NCONFIG=$(vvv_site_template_search_replace "${NCONFIG}" "{{PUBLIC_DIR_PATH}}" "${PUBLIC_DIR_PATH}")
+  
+
   # Write out the new Nginx file for VVV to pick up.
-  noroot touch  "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
-  echo "${NCONFIG}" > "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
+  noroot touch  "${VVV_PATH_TO_SITE%/}/provision/vvv-nginx.conf"
+  echo "${NCONFIG}" > "${VVV_PATH_TO_SITE%/}/provision/vvv-nginx.conf"
 }
 
-setup_wp_config_constants(){
+function setup_wp_config_constants() {
   set +e
   noroot shyaml get-values-0 -q "sites.${VVV_SITE_NAME}.custom.wpconfig_constants" < "${VVV_CONFIG}" |
   while IFS='' read -r -d '' key &&
@@ -163,7 +169,7 @@ setup_wp_config_constants(){
   set -e
 }
 
-restore_db_backup() {
+function restore_db_backup() {
   echo " * Found a database backup at ${1}. Restoring the site"
   noroot wp config set DB_USER "wp"
   noroot wp config set DB_PASSWORD "wp"
@@ -174,20 +180,20 @@ restore_db_backup() {
   echo " * Installed database backup"
 }
 
-download_wordpress() {
-  # Install and configure the latest stable version of WordPress
+# @description Downloads WordPress given a locale and version.
+function download_wordpress() {
   echo " * Downloading WordPress version '${1}' locale: '${2}'"
   noroot wp core download --locale="${2}" --version="${1}"
 }
 
-initial_wpconfig() {
+function initial_wpconfig() {
   echo " * Setting up wp-config.php"
   noroot wp config create --dbname="${DB_NAME}" --dbprefix="${DB_PREFIX}" --dbuser=wp --dbpass=wp
   noroot wp config set WP_DEBUG true --raw
   noroot wp config set SCRIPT_DEBUG true --raw
 }
 
-maybe_import_test_content() {
+function maybe_import_test_content() {
   INSTALL_TEST_CONTENT=$(get_config_value 'install_test_content' "")
   if [ ! -z "${INSTALL_TEST_CONTENT}" ]; then
     echo " * Downloading test content from github.com/poststatus/wptest/master/wptest.xml"
@@ -204,7 +210,7 @@ maybe_import_test_content() {
   fi
 }
 
-install_wp() {
+function install_wp() {
   echo " * Installing WordPress"
   ADMIN_USER=$(get_config_value 'admin_user' "admin")
   ADMIN_PASSWORD=$(get_config_value 'admin_password' "password")
@@ -234,7 +240,7 @@ install_wp() {
   maybe_import_test_content
 }
 
-update_wp() {
+function update_wp() {
   if [[ $(noroot wp core version) > "${WP_VERSION}" ]]; then
     echo " * Installing an older version '${WP_VERSION}' of WordPress"
     noroot wp core update --version="${WP_VERSION}" --force
@@ -244,16 +250,16 @@ update_wp() {
   fi
 }
 
-setup_cli() {
-  rm -f "${VVV_PATH_TO_SITE}/wp-cli.yml"
-  echo "# auto-generated file" > "${VVV_PATH_TO_SITE}/wp-cli.yml"
-  echo "path: \"${PUBLIC_DIR}\"" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
-  echo "@vvv:" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
-  echo "  ssh: vagrant" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
-  echo "  path: ${PUBLIC_DIR_PATH}" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
-  echo "@${VVV_SITE_NAME}:" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
-  echo "  ssh: vagrant" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
-  echo "  path: ${PUBLIC_DIR_PATH}" >> "${VVV_PATH_TO_SITE}/wp-cli.yml"
+function setup_cli() {
+  rm -f "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
+  echo "# auto-generated file" > "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
+  echo "path: \"${PUBLIC_DIR}\"" >> "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
+  echo "@vvv:" >> "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
+  echo "  ssh: vagrant" >> "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
+  echo "  path: ${PUBLIC_DIR_PATH}" >> "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
+  echo "@${VVV_SITE_NAME}:" >> "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
+  echo "  ssh: vagrant" >> "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
+  echo "  path: ${PUBLIC_DIR_PATH}" >> "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
 }
 
 cd "${VVV_PATH_TO_SITE}"
