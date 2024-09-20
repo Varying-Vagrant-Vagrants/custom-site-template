@@ -249,14 +249,16 @@ function update_wp() {
   fi
 }
 
+# @description Setup a wp-cli.yml config for easier SSH, replacing any existing WP CLI config.
+# @noargs
 function setup_cli() {
   rm -f "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
   echo "# auto-generated file" > "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
   echo "path: \"${PUBLIC_DIR_PATH}\"" >> "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
-  echo "@vvv:" >> "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
+  echo "\"@vvv\":" >> "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
   echo "  ssh: vagrant" >> "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
   echo "  path: ${PUBLIC_DIR_PATH}" >> "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
-  echo "@${VVV_SITE_NAME}:" >> "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
+  echo "\"@${VVV_SITE_NAME}\":" >> "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
   echo "  ssh: vagrant" >> "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
   echo "  path: ${PUBLIC_DIR_PATH}" >> "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
 }
@@ -271,6 +273,7 @@ if [ "${WP_TYPE}" == "none" ]; then
   echo " * wp_type was set to none, provisioning WP was skipped, moving to Nginx configs"
 else
   echo " * Install type is '${WP_TYPE}'"
+
   # Install and configure the latest stable version of WordPress
   if [[ ! -f "${PUBLIC_DIR_PATH}/wp-load.php" ]]; then
     download_wordpress "${WP_VERSION}" "${WP_LOCALE}"
