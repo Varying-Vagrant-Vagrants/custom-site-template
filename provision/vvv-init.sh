@@ -38,6 +38,9 @@ function setup_nginx_folders() {
   noroot mkdir -p "${VVV_PATH_TO_SITE%/}/log"
   noroot touch "${VVV_PATH_TO_SITE%/}/log/nginx-error.log"
   noroot touch "${VVV_PATH_TO_SITE%/}/log/nginx-access.log"
+}
+
+function setup_public_dir() {
   echo " * Creating the public folder at '${PUBLIC_DIR}' if it doesn't exist already"
   noroot mkdir -p "${PUBLIC_DIR_PATH}"
 }
@@ -263,11 +266,16 @@ function setup_cli() {
   echo "  path: ${PUBLIC_DIR_PATH}" >> "${VVV_PATH_TO_SITE%/}/wp-cli.yml"
 }
 
-cd "${PUBLIC_DIR_PATH}"
+# initial working directory
+cd "${VVV_PATH_TO_SITE}"
 
-setup_cli
 setup_database
 setup_nginx_folders
+setup_public_dir
+setup_cli
+
+# Start working inside WP public_dir
+cd "${PUBLIC_DIR_PATH}"
 
 if [ "${WP_TYPE}" == "none" ]; then
   echo " * wp_type was set to none, provisioning WP was skipped, moving to Nginx configs"
